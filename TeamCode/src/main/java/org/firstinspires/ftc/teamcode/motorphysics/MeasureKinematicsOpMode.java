@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.Menu;
 
 public abstract class MeasureKinematicsOpMode extends OpMode {
     VoltageSensor voltageSensor;
@@ -28,7 +29,7 @@ public abstract class MeasureKinematicsOpMode extends OpMode {
 
         dashboardTelemetry = FtcDashboard.getInstance().getTelemetry();
 
-        controlMenu = new Menu(gamepad1);
+        controlMenu = new Menu(gamepad1,"Select Power");
         controlMenu.addOption("Full Power", () -> setDutyCycle(1));
         controlMenu.addOption("Full Neg Power", () -> setDutyCycle(-1));
         controlMenu.addOption("0.2 Power", () -> setDutyCycle(0.2));

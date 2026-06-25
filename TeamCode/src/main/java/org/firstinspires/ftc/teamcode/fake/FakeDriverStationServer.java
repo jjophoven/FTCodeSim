@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class FakeDriverStationServer {
     private static final int PORT = 8080;
-    private static final int SOCKET_TIMEOUT_MS = 20000;
+    private static final int SOCKET_TIMEOUT_MS = 30000;
 
     private ServerSocket listener;
     private Socket clientSocket;
@@ -78,6 +78,21 @@ public class FakeDriverStationServer {
 
                         gamepad1.dpad_up = pressed && keyCode == 87;
                         gamepad1.dpad_down = pressed && keyCode == 83;
+                        gamepad1.dpad_left = pressed && keyCode == 65;
+                        gamepad1.dpad_right = pressed && keyCode == 68;
+
+                        if (pressed) {
+                            if (keyCode == 81) {
+                                gamepad1.right_stick_x = -1;
+                            }
+                            if (keyCode == 69) {
+                                gamepad1.right_stick_x = 1;
+                            }
+                            else {
+                                gamepad1.right_stick_x = 0;
+                            }
+                        }
+
                         gamepad1.a = pressed && keyCode == 10;
 
                         break;
@@ -134,7 +149,7 @@ public class FakeDriverStationServer {
 
         Process process = new ProcessBuilder(
                 gradlew.getAbsolutePath(),
-                ":Simulation:run"
+                ":DriverStationClient:run"
         )
                 .directory(projectRoot)
                 .redirectErrorStream(true)

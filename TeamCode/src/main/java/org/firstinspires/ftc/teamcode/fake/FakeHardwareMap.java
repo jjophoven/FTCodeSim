@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 public class FakeHardwareMap extends HardwareMap {
     public FakeHardwareMap(Context appContext, OpModeManagerNotifier notifier) {
         super(appContext, notifier);
+        voltageSensor.put("voltageSensor", new FakeVoltageSensor());
     }
 
     @Override

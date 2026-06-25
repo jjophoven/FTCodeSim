@@ -52,8 +52,7 @@ public abstract class RobotOpMode extends OpMode {
 
         hubs = hardwareMap.getAll(LynxModule.class);
         hubs.forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
-        //voltageSensor = hardwareMap.voltageSensor.iterator().next();
-        voltageSensor = hardwareMap.get(VoltageSensor.class, "voltageSensor");
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         Logger.start();
         Logger.recordMetadata("Init/Teleop", "UtilOpMode");
@@ -87,7 +86,7 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public void start() {
-        //psiKit.start(this, 5800, "test2", true, "");
+        psiKit.start(this, 5800, "", true, "TeamCode/logs");
 
         timer.start();
         Logger.recordMetadata("Start/Alliance", String.valueOf(alliance));
@@ -100,13 +99,13 @@ public abstract class RobotOpMode extends OpMode {
 
         hubs.forEach(LynxModule::clearBulkCache);
 
-        //Logger.periodicBeforeUser();
+        Logger.periodicBeforeUser();
 
         Logger.recordOutput("Loop/raw loop time (ms)", timer.getDt());
         Logger.recordOutput("Loop/runtime secs", timer.getRuntime());
         Logger.recordOutput("Robot/battery voltage", voltageSensor.getVoltage());
 
-        //Logger.periodicAfterUser(0,0);
+        Logger.periodicAfterUser(0,0);
 
     }
 
