@@ -60,7 +60,6 @@ public class DriverStationConnection {
         }
     }
 
-
     public void sendKey(int keyCode, boolean down) {
         safe(() -> {
             output.writeByte(KEY_PACKET);

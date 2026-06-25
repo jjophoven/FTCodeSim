@@ -30,7 +30,7 @@ public abstract class TeleOpMode extends RobotOpMode {
 
         double delta = 0.05;
 
-        x += (gamepad1.dpad_left ? 1 : 0) * delta - (gamepad1.dpad_right ? 1 : 0) * delta;
+        x -= (gamepad1.dpad_left ? 1 : 0) * delta - (gamepad1.dpad_right ? 1 : 0) * delta;
         y += (gamepad1.dpad_up ? 1 : 0) * delta - (gamepad1.dpad_down ? 1 : 0) * delta;
         theta += gamepad1.right_stick_x * delta;
 

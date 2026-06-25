@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FakeDriverStationServer {
     private static final int PORT = 8080;
@@ -62,6 +64,8 @@ public class FakeDriverStationServer {
     public static final byte KEY_PACKET = 1;
     public static final byte STATE_PACKET = 2;
 
+    private final Set<Integer> heldKeys = new HashSet<>();
+
     public void poll() {
         if (!running || !clientConnected) {
             return;
@@ -76,24 +80,24 @@ public class FakeDriverStationServer {
 
                         System.out.println("KEY: " + keyCode + ", " + (pressed ? "pressed" : "released"));
 
-                        gamepad1.dpad_up = pressed && keyCode == 87;
-                        gamepad1.dpad_down = pressed && keyCode == 83;
-                        gamepad1.dpad_left = pressed && keyCode == 65;
-                        gamepad1.dpad_right = pressed && keyCode == 68;
+                        if (pressed) heldKeys.add(keyCode);
+                        else heldKeys.remove(keyCode);
 
-                        if (pressed) {
-                            if (keyCode == 81) {
-                                gamepad1.right_stick_x = -1;
-                            }
-                            if (keyCode == 69) {
-                                gamepad1.right_stick_x = 1;
-                            }
-                            else {
-                                gamepad1.right_stick_x = 0;
-                            }
+                        gamepad1.dpad_up    = heldKeys.contains(87);
+                        gamepad1.dpad_down  = heldKeys.contains(83);
+                        gamepad1.dpad_left  = heldKeys.contains(65);
+                        gamepad1.dpad_right = heldKeys.contains(68);
+                        gamepad1.a          = heldKeys.contains(10);
+
+                        if (heldKeys.contains(81) && heldKeys.contains(69)) {
+                            gamepad1.right_stick_x = 0; // both cancel out
+                        } else if (heldKeys.contains(81)) {
+                            gamepad1.right_stick_x = -1;
+                        } else if (heldKeys.contains(69)) {
+                            gamepad1.right_stick_x = 1;
+                        } else {
+                            gamepad1.right_stick_x = 0;
                         }
-
-                        gamepad1.a = pressed && keyCode == 10;
 
                         break;
 
@@ -102,7 +106,6 @@ public class FakeDriverStationServer {
                         break;
                 }
             }
-
         } catch (IOException e) {
             log("Error updating Fake DS" + e);
             close();
