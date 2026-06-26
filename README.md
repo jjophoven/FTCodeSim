@@ -559,7 +559,7 @@ This is a bug fix only release to address the following four issues.
 
 ### Breaking Changes
 * Updates the build tooling.  For Android Studio users, this change requires Android Studio Chipmunk 2021.2.1.
-* Removes support for devices that are not competition legal, including Modern Robotics Core Control Modules, the Matrix Controller, and HiTechnic/NXT controllers and sensors.  Support remains for Modern Robotics I2C sensors.
+* Removes support for devices that are not competition legal, including Modern Robotics Core Control Modules, the util.Matrix Controller, and HiTechnic/NXT controllers and sensors.  Support remains for Modern Robotics I2C sensors.
 
 ### Enhancements
 * Increases the height of the 3-dots Landscape menu touch area on the Driver Station, making it much easier to select.
@@ -1337,7 +1337,7 @@ Please note, however, that version 3.00 is considered "alpha" code.  This code i
 Changes include:
  * Major rework of sensor-related infrastructure.  Includes rewriting sensor classes to implement synchronous I2C communication.
  * Fix to reset Autonomous timer back to 30 seconds.
- * Implementation of specific motor profiles for approved 12V motors (includes Tetrix, AndyMark, Matrix and REV models).
+ * Implementation of specific motor profiles for approved 12V motors (includes Tetrix, AndyMark, util.Matrix and REV models).
  * Modest improvements to enhance Wi-Fi P2P pairing.
  * Fixes telemetry log addition race.
  * Publishes all the sources (not just a select few).
@@ -1660,7 +1660,7 @@ Changes include:
  * Fixed duplicate name UI bug (Legacy Module configuration).
  * Fixed race condition in EventLoopManager.
  * Fix to keep references stable when updating gamepad.
- * For legacy Matrix motor/servo controllers removed necessity of appending "Motor" and "Servo" to controller names.
+ * For legacy util.Matrix motor/servo controllers removed necessity of appending "Motor" and "Servo" to controller names.
  * Updated HT color sensor driver to use constants from ModernRoboticsUsbLegacyModule class.
  * Updated MR color sensor driver to use constants from ModernRoboticsUsbDeviceInterfaceModule class.
  * Correctly handle I2C Address change in all color sensors
@@ -1671,13 +1671,13 @@ Changes include:
   - Added MRGyroTest.java OpMode (demonstrates how to use MR Gyro Sensor).
   - Added MRRGBExample.java OpMode (demonstrates how to use MR Color Sensor).
   - Added HTRGBExample.java OpMode (demonstrates how to use HT legacy color sensor).
-  - Added MatrixControllerDemo.java (demonstrates how to use legacy Matrix controller).
+  - Added MatrixControllerDemo.java (demonstrates how to use legacy util.Matrix controller).
  * Updated javadoc documentation.
  * Updated release .apk files for Robot Controller and Driver Station apps.
 
 ## Release 15.10.06.002
 
- * Added support for Legacy Matrix 9.6V motor/servo controller.
+ * Added support for Legacy util.Matrix 9.6V motor/servo controller.
  * Cleaned up build.gradle file.
  * Minor UI and bug fixes for driver station and robot controller apps.
  * Throws error if Ultrasonic sensor (NXT) is not configured for legacy module port 4 or 5.

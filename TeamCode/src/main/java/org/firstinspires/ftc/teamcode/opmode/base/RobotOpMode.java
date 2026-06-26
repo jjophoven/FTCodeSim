@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmode.base;
 
 import android.annotation.SuppressLint;
+import com.pedropathing.drivetrain.Drivetrain;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.localization.Localizer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.*;
+import org.firstinspires.ftc.teamcode.drivetrain.Mecanum;
 import org.firstinspires.ftc.teamcode.utils.DataSaver;
 import org.firstinspires.ftc.teamcode.utils.Menu;
 import org.firstinspires.ftc.teamcode.utils.OpModeTimer;
@@ -24,6 +29,8 @@ public abstract class RobotOpMode extends OpMode {
     protected Alliance alliance;
     protected VoltageSensor voltageSensor;
     protected Pose pose;
+    protected Mecanum drivetrain;
+    protected PinpointLocalizer localizer;
 
     private List<LynxModule> hubs;
 
@@ -53,6 +60,10 @@ public abstract class RobotOpMode extends OpMode {
         hubs = hardwareMap.getAll(LynxModule.class);
         hubs.forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
+
+        localizer = new PinpointLocalizer(hardwareMap, new PinpointConstants());
+
+        drivetrain = new Mecanum(hardwareMap);
 
         Logger.start();
         Logger.recordMetadata("Init/Teleop", "UtilOpMode");

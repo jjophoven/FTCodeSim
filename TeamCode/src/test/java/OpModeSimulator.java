@@ -14,7 +14,8 @@ public class OpModeSimulator {
         driverStation.startServer();
         driverStation.acceptClient();
 
-        opMode.hardwareMap = new FakeHardwareMap(null, null);
+        FakeHardwareMap fakeHardwareMap = new FakeHardwareMap(null, null);
+        opMode.hardwareMap = fakeHardwareMap;
         opMode.telemetry = new FakeTelemetry(driverStation);
         opMode.gamepad1 = new Gamepad();
 
@@ -31,7 +32,6 @@ public class OpModeSimulator {
         while (driverStation.state == OpModeState.INITIALIZING) {
             driverStation.poll();
 
-            // makes Edge Detection methods work
             opMode.gamepad1.fromByteArray(driverStation.gamepad1.toByteArray());
 
             opMode.init_loop();
@@ -44,8 +44,9 @@ public class OpModeSimulator {
         while (driverStation.state == OpModeState.RUNNING) {
             driverStation.poll();
 
-            // makes Edge Detection methods work
             opMode.gamepad1.fromByteArray(driverStation.gamepad1.toByteArray());
+
+            fakeHardwareMap.updateDrivetrain();
 
             opMode.loop();
 

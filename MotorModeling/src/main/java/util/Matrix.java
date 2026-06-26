@@ -1,8 +1,10 @@
+package util;
+
 import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * The Matrix class is used to represent matrix objects. Has basic operations such as adding, subtracting, and multiplying (w/ scalars and another matrix),
+ * The util.Matrix class is used to represent matrix objects. Has basic operations such as adding, subtracting, and multiplying (w/ scalars and another matrix),
  * but also includes an implementation of gaussian elimination with partial pivoting and row operations
  *
  * @author William Phomphakdee - 7462 Not to Scale Alumni
@@ -55,25 +57,25 @@ public class Matrix {
     }
 
     /**
-     * This creates a new Matrix from another Matrix.
+     * This creates a new util.Matrix from another util.Matrix.
      *
-     * @param setMatrix the Matrix input.
+     * @param setMatrix the util.Matrix input.
      */
     public Matrix(Matrix setMatrix) {
         setMatrix(setMatrix);
     }
 
     /**
-     * This sets the 2D Array of this Matrix to a copy of the 2D Array of another Matrix.
+     * This sets the 2D Array of this util.Matrix to a copy of the 2D Array of another util.Matrix.
      *
-     * @param setMatrix the Matrix to copy from
+     * @param setMatrix the util.Matrix to copy from
      */
     public void setMatrix(Matrix setMatrix) {
         setMatrix(setMatrix.getMatrix());
     }
 
     /**
-     * This sets the 2D Array of this Matrix to a copy of a specified 2D Array.
+     * This sets the 2D Array of this util.Matrix to a copy of a specified 2D Array.
      *
      * @param setMatrix the 2D Array to copy from
      */
@@ -119,7 +121,7 @@ public class Matrix {
     }
 
     /**
-     * Get the internal representation of Matrix
+     * Get the internal representation of util.Matrix
      * @return 2d double array
      */
     public double[][] getMatrix() {
@@ -151,17 +153,17 @@ public class Matrix {
     }
 
     /**
-     * This returns a specified row of the Matrix in the form of an Array of doubles.
+     * This returns a specified row of the util.Matrix in the form of an Array of doubles.
      *
      * @param row the index of the row to return
-     * @return returns the row of the Matrix specified
+     * @return returns the row of the util.Matrix specified
      */
     public double[] get(int row) {
         return Arrays.copyOf(matrix[row], matrix[row].length);
     }
 
     /**
-     * This sets a row of the Matrix to a copy of a specified Array of doubles.
+     * This sets a row of the util.Matrix to a copy of a specified Array of doubles.
      *
      * @param row the row to be written over
      * @param input the Array input
@@ -306,7 +308,7 @@ public class Matrix {
     }
 
     /**
-     * Matrix multiplication between two matrices; A * B
+     * util.Matrix multiplication between two matrices; A * B
      * @param other the other matrix (on the right side of the equation)
      * @return a new matrix that is the product of the two matrices
      */
@@ -338,7 +340,7 @@ public class Matrix {
     }
 
     /**
-     * Matrix multiplication between two matrices; A * B
+     * util.Matrix multiplication between two matrices; A * B
      * @param other the other matrix (on the right side of the equation)
      * @return a new matrix that is the product of the two matrices
      */
@@ -347,7 +349,7 @@ public class Matrix {
     }
 
     /**
-     * Matrix multiplication between two matrices; A * B (remember, order matters here)
+     * util.Matrix multiplication between two matrices; A * B (remember, order matters here)
      * @param one the first matrix
      * @param two the second matrix
      * @return the product of the matrices
@@ -583,11 +585,11 @@ public class Matrix {
      */
     public static Matrix inverse2x2(Matrix matrix) {
         if (matrix.rowCount != 2 || matrix.colCount != 2)
-            throw new IllegalStateException("Matrix is not 2x2");
+            throw new IllegalStateException("util.Matrix is not 2x2");
 
         double det = matrix.determinant();
         if (det == 0.0)
-            throw new ArithmeticException("Matrix is singular");
+            throw new ArithmeticException("util.Matrix is singular");
 
         Matrix inv = new Matrix(2, 2);
         inv.matrix[0][0] =  matrix.get(1,1) / det;
@@ -605,11 +607,11 @@ public class Matrix {
      */
     public static Matrix inverse3x3(Matrix matrix) {
         if (matrix.rowCount != 3 || matrix.colCount != 3)
-            throw new IllegalStateException("Matrix is not 3x3");
+            throw new IllegalStateException("util.Matrix is not 3x3");
 
         double det = matrix.determinant();
         if (det == 0.0)
-            throw new ArithmeticException("Matrix is singular");
+            throw new ArithmeticException("util.Matrix is singular");
 
         Matrix inv = new Matrix(3, 3);
 
@@ -633,12 +635,12 @@ public class Matrix {
      * @return the inverse matrix
      */
     public Matrix inverse() {
-        if (rowCount != colCount) throw new IllegalStateException("Matrix must be square");
+        if (rowCount != colCount) throw new IllegalStateException("util.Matrix must be square");
 
         Matrix I = Matrix.identity(rowCount);
         Matrix[] r = Matrix.rref(this, I);
 
-        if (!r[0].equals(I)) throw new IllegalArgumentException("Matrix not invertible");
+        if (!r[0].equals(I)) throw new IllegalArgumentException("util.Matrix not invertible");
         return r[1];
     }
 
@@ -679,7 +681,7 @@ public class Matrix {
      * that has the diagonal elements be the passed in array values while the rest
      * of the elements are 0's
      * @param elements 1d double array
-     * @return Matrix of NxN size
+     * @return util.Matrix of NxN size
      */
     public static Matrix diag(double... elements){
         Matrix output = new Matrix(elements.length, elements.length);
@@ -693,7 +695,7 @@ public class Matrix {
      * Returns an affine translation matrix of 3x3 size
      * @param x x translation
      * @param y y translation
-     * @return Matrix of 3x3 size
+     * @return util.Matrix of 3x3 size
      */
     public static Matrix translation(double x, double y){
         return new Matrix(new double[][]{

@@ -17,3 +17,8 @@ help align heading and such when near zones
 before every match in teleop
 
 log to simulation to RLOG/psi kit
+
+
+simulate boundaries, goal, collisions, gamepieces, and shooting artifacts, and intaking artifacts
+
+each mecanum wheel

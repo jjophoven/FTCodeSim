@@ -1,3 +1,5 @@
+package util;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -102,7 +104,7 @@ public class ModelFitter {
 
     private static void fitAndReportToCSV(AggregatedData data, String outCsv) throws IOException {
         // v -> velocity, d -> duty cycle, b -> battery voltage
-//        MotorModel model = new MotorModel(
+//        util.MotorModel model = new util.MotorModel(
 //                (v, d, b) -> d * b,                    // motor torque
 //                (v, d, b) -> -v * Math.abs(d),        // back emf (only applied for on PWM)
 //                (v, d, b) -> -v,                       // viscous friction

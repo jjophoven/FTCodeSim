@@ -1,3 +1,5 @@
+package util;
+
 /**
  * Computes the QR Decomposition of an m x n matrix (m >= n).
  * Decomposes A into an orthogonal matrix Q and an upper-triangular matrix R.
@@ -70,14 +72,14 @@ public class QRDecomposition {
     /**
      * Solves the system A * x = b (or finds the least-squares solution if overdetermined).
      * Transforms the problem to: R * x = Q^T * b
-     * @param b The right-hand side target Vector.
-     * @return The solution Vector x.
+     * @param b The right-hand side target util.Vector.
+     * @return The solution util.Vector x.
      */
     public Vector solve(Vector b) {
         int m = Q.getRows();
         int n = Q.getColumns();
         if (b.size() != m) {
-            throw new IllegalArgumentException("Vector size must match matrix row count.");
+            throw new IllegalArgumentException("util.Vector size must match matrix row count.");
         }
 
         // Compute y = Q^T * b
@@ -98,7 +100,7 @@ public class QRDecomposition {
                 sum -= R.get(i, k) * x[k];
             }
             if (Math.abs(R.get(i, i)) < 1e-9) {
-                throw new ArithmeticException("Matrix is singular or near-singular.");
+                throw new ArithmeticException("util.Matrix is singular or near-singular.");
             }
             x[i] = sum / R.get(i, i);
         }

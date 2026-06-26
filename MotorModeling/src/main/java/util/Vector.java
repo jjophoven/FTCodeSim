@@ -1,3 +1,5 @@
+package util;
+
 import java.util.Arrays;
 
 /**
@@ -62,7 +64,7 @@ public class Vector {
      */
     public Vector plus(Vector other) {
         if (this.size() != other.size()) {
-            throw new IllegalArgumentException("Vector sizes must match.");
+            throw new IllegalArgumentException("util.Vector sizes must match.");
         }
         double[] result = new double[size()];
         for (int i = 0; i < size(); i++) {
@@ -76,7 +78,7 @@ public class Vector {
      */
     public Vector minus(Vector other) {
         if (this.size() != other.size()) {
-            throw new IllegalArgumentException("Vector sizes must match.");
+            throw new IllegalArgumentException("util.Vector sizes must match.");
         }
         double[] result = new double[size()];
         for (int i = 0; i < size(); i++) {
@@ -90,7 +92,7 @@ public class Vector {
      */
     public double dot(Vector other) {
         if (this.size() != other.size()) {
-            throw new IllegalArgumentException("Vector sizes must match.");
+            throw new IllegalArgumentException("util.Vector sizes must match.");
         }
         double sum = 0;
         for (int i = 0; i < size(); i++) {
@@ -101,7 +103,7 @@ public class Vector {
 
     public Vector hadamardProduct(Vector other) {
         if (this.size() != other.size()) {
-            throw new IllegalArgumentException("Vector sizes must match.");
+            throw new IllegalArgumentException("util.Vector sizes must match.");
         }
 
         double[] elements = new double[size()];
@@ -112,16 +114,16 @@ public class Vector {
     }
 
     /**
-     * Transforms this vector by a matrix (Matrix * Vector).
+     * Transforms this vector by a matrix (util.Matrix * util.Vector).
      * In linear algebra, this is the standard way to apply rotations, scales, or shears.
      * * @param m The transformation matrix.
      *
-     * @return A new Vector resulting from the transformation.
+     * @return A new util.Vector resulting from the transformation.
      * @throws IllegalArgumentException if the matrix columns do not match vector size.
      */
     public Vector transform(Matrix m) {
         if (m.getColumns() != this.size()) {
-            throw new IllegalArgumentException("Matrix columns must match vector size for transformation.");
+            throw new IllegalArgumentException("util.Matrix columns must match vector size for transformation.");
         }
 
         double[] result = new double[m.getRows()];
