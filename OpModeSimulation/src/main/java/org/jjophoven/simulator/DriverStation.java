@@ -23,7 +23,6 @@ public class DriverStation {
     private DataOutputStream out;
     private Process process;
 
-    public boolean running = false;
     public boolean clientConnected = false;
 
     public OpModeState state = OpModeState.WAIT_FOR_INIT;
@@ -54,7 +53,6 @@ public class DriverStation {
 
         process = startDriverStationProcess();
 
-        running = true;
         clientConnected = false;
     }
 
@@ -89,8 +87,7 @@ public class DriverStation {
     }
 
     public void poll() {
-        boolean isAlive = process.isAlive();
-        if (!running || !clientConnected || !isAlive) {
+        if (!process.isAlive()) {
             close();
             return;
         }
@@ -138,17 +135,7 @@ public class DriverStation {
     }
 
     public void close() {
-        running = false;
         clientConnected = false;
-
-        if (out == null) {
-            return;
-        }
-        try {
-            out.writeByte(3);
-            out.flush();
-        } catch (IOException ignored) {
-        }
 
         try {
             if (clientSocket != null) clientSocket.close();

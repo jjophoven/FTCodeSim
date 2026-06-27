@@ -1,3 +1,4 @@
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.opmode.FieldCentricTeleop;
 import org.jjophoven.simulator.OpModeSimulator;
 import org.jjophoven.simulator.OpModeRegister;
@@ -8,11 +9,12 @@ public class SimulateOpMode {
     @Test
     public void test() throws IOException, InterruptedException {
          OpModeRegister register = new OpModeRegister();
-         for (Class<?> opMode : register.getTeleOpModes()) {
-             System.out.println(opMode.getName());
+         for (OpMode opMode : register.getTeleOpModes()) {
+
+             //OpModeSimulator.simulate(opMode);
+             System.out.println(opMode.getClass().getSimpleName());
          }
 
-//         Optionally simulate a single opmode directly
          OpModeSimulator.simulate(new FieldCentricTeleop());
     }
 }

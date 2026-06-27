@@ -1,6 +1,7 @@
 package org.jjophoven.simulator;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -13,18 +14,18 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class OpModeRegister {
-    Set<Class<?>> autos = new LinkedHashSet<>();
-    Set<Class<?>> teleops = new LinkedHashSet<>();
+    Set<OpMode> autos = new LinkedHashSet<>();
+    Set<OpMode> teleops = new LinkedHashSet<>();
 
     public OpModeRegister() {
         findAnnotatedOpModes();
     }
 
-    public Set<Class<?>> getAutonomousModes() {
+    public Set<OpMode> getAutonomousModes() {
         return autos;
     }
 
-    public Set<Class<?>> getTeleOpModes() {
+    public Set<OpMode> getTeleOpModes() {
         return teleops;
     }
 
@@ -85,14 +86,17 @@ public class OpModeRegister {
     private void checkAndAddClass(String className, ClassLoader cl) {
         try {
             Class<?> c = Class.forName(className, false, cl);
+            if (!OpMode.class.isAssignableFrom(c)) return;
             if (c.isAnnotationPresent(Disabled.class)) return;
             if (c.isAnnotationPresent(TeleOp.class)) {
-                teleops.add(c);
+                teleops.add((OpMode) c.newInstance());
             } else if (c.isAnnotationPresent(Autonomous.class)) {
-                autos.add(c);
+                autos.add((OpMode) c.newInstance());
             }
         } catch (ClassNotFoundException ignored) {
 
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException("Could not create OpMode" + e);
         }
     }
 }

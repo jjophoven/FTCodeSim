@@ -12,7 +12,6 @@ public class DriverStationConnection {
     public static final byte INPUT_TELEMETRY = 1;
     public static final byte KEY_PACKET = 1;
     public static final byte STATE_PACKET = 2;
-    public static final byte CLOSE = 3;
 
     private final Consumer<String> telemetryConsumer;
     private final Runnable connectedCallback;
@@ -77,13 +76,6 @@ public class DriverStationConnection {
         safe(() -> {
             output.writeByte(STATE_PACKET);
             output.writeByte(state.ordinal());
-            output.flush();
-        });
-    }
-
-    public void sendClose() {
-        safe(() -> {
-            output.writeByte(3);
             output.flush();
         });
     }

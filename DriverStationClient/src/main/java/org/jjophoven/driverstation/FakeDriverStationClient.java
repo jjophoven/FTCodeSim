@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FakeDriverStationClient extends JFrame {
     private static final Color BG_DARK       = new Color(0x1A, 0x1A, 0x1A);
@@ -65,7 +67,6 @@ public class FakeDriverStationClient extends JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
-                connection.sendClose();
                 connection.close();
                 dispose();
                 System.exit(0);
@@ -321,21 +322,31 @@ public class FakeDriverStationClient extends JFrame {
         }
     }
 
+    private final Set<Integer> pressedKeys = new HashSet<>();
+
     private void applyKeyDispatcher() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
                     if (e.isConsumed()) return false;
 
+                    int code = e.getKeyCode();
+
                     if (e.getID() == KeyEvent.KEY_PRESSED) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        if (code == KeyEvent.VK_ESCAPE) {
                             onStop();
-                        } else {
-                            connection.sendKey(e.getKeyCode(), true);
+                            return false;
+                        }
+
+                        if (pressedKeys.add(code)) {
+                            connection.sendKey(code, true);
+                        }
+
+                    } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+                        if (pressedKeys.remove(code)) {
+                            connection.sendKey(code, false);
                         }
                     }
-                    if (e.getID() == KeyEvent.KEY_RELEASED) {
-                        connection.sendKey(e.getKeyCode(), false);
-                    }
+
                     return false;
                 });
     }
