@@ -2,8 +2,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.opmode.FieldCentricTeleop;
 import org.jjophoven.input.Keybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
-import org.jjophoven.simulator.OpModeSimulator;
-import org.jjophoven.simulator.OpModeRegister;
 import org.junit.Test;
 import java.io.IOException;
 
