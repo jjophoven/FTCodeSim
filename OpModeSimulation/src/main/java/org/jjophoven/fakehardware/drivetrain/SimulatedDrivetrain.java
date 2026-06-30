@@ -10,14 +10,14 @@ public abstract class SimulatedDrivetrain {
     public MotionVector position = new MotionVector(0, 0, 0); // model start heading
     public MotionVector velocity = new MotionVector(0, 0, 0);
 
-    protected double[] motorVelocities;
+    protected double[] motorAngularVelocities;
     protected MotorModel model;
     protected double[] coefficients;
 
     public SimulatedDrivetrain(FakeMotor[] motors, MotorModel model, double[] coefficients) {
         this.motors = motors;
 
-        motorVelocities = new double[motors.length];
+        motorAngularVelocities = new double[motors.length];
         this.model = model;
         this.coefficients = coefficients;
     }
@@ -28,18 +28,18 @@ public abstract class SimulatedDrivetrain {
             motors[i].step(deltaTime);
 
             FakeMotor motor = motors[i];
-            motorVelocities[i] = motor.getVelocity();
+            motorAngularVelocities[i] = motor.getVelocity();
 
-            Logger.recordOutput("Mecanum/vels/" + motor.deviceName, motor.getVelocity());
+            Logger.recordOutput("Mecanum/angular vels/" + motor.deviceName, motor.getVelocity());
             Logger.recordOutput("Mecanum/powers/" + motor.deviceName, motor.getPower());
-            Logger.recordOutput("Mecanum/accelerations/" + motor.deviceName, motor.getAcceleration());
+            Logger.recordOutput("Mecanum/angular accelerations/" + motor.deviceName, motor.getAcceleration());
 
             if (!motor.isStationary()) {
                 allMotorsStationary = false;
             }
         }
 
-        velocity = forwardKinematics(motorVelocities).toFieldFrame(position.theta);
+        velocity = forwardKinematics(motorAngularVelocities).toFieldFrame(position.theta);
 
         if (allMotorsStationary) {
             velocity = new MotionVector(0, 0, 0);
@@ -47,18 +47,17 @@ public abstract class SimulatedDrivetrain {
 
         position = position.step(velocity, deltaTime);
 
-        MotionVector motionVector = position.plus(velocity);
-        motionVector.log("Mecanum/velocity");
+        velocity.log("Mecanum/velocity");
 
-        // Accounts for wheels moving from whole robot moving
-        motorVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
+       //  Accounts for wheels moving from whole robot moving
+        motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {
-            motors[i].setRollVelocity(motorVelocities[i]);
+            motors[i].setRollVelocity(motorAngularVelocities[i]);
         }
 
         // TODO maybe make it more accurate by calculating rolling accel?
 
-        position.log("Mecanum/pose");
+        position.log("Mecanum/position");
     }
 
     abstract MotionVector forwardKinematics(double[] motors);

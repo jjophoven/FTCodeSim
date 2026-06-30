@@ -14,7 +14,7 @@ public class FieldCentricTeleop extends TeleOpMode {
         Logger.recordOutput("heading", localizer.getPose().getHeading());
 
         double heading = localizer.getPose().getHeading();
-        if (alliance == Alliance.RED) {
+        if (alliance == Alliance.BLUE) {
             heading += Math.PI;
         }
 

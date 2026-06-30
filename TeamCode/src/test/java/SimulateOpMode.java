@@ -8,11 +8,13 @@ import java.io.IOException;
 public class SimulateOpMode {
     @Test
     public void test() throws IOException, InterruptedException {
-        double accelK = 0.7;
-        double dutyBackEMF = 1.5;
-        double viscousFriction = 0.7;
-        double coulombFriction = 3; // rolling friction?
+        // TUNABLE MECANUM CONSTANTS
+        double maxVelocity = 70;
+        double maxAcceleration = 250;
+        double naturalDeceleration = 100;
 
+
+        // Ill clean the rest up later
         SimulationConfig simulationConfig = new SimulationConfig();
 
         MecanumConfig mecanumConfig = new MecanumConfig();
@@ -20,11 +22,25 @@ public class SimulateOpMode {
         mecanumConfig.frontRightMotorName = "frontRight";
         mecanumConfig.backLeftMotorName = "backLeft";
         mecanumConfig.backRightMotorName = "backRight";
-        mecanumConfig.wheelbase = 0.2286;
-        mecanumConfig.trackWidth = 0.2286;
-        mecanumConfig.coefficients = new double[]{accelK, dutyBackEMF, viscousFriction, coulombFriction};
-        mecanumConfig.staticVelocityRegion = 0.05;
-        mecanumConfig.staticFriction = 4.5;
+        mecanumConfig.wheelbase = 4.68504; // half distance from frontLeft wheel to backLeft wheel
+        mecanumConfig.trackWidth = 4.56693; // half distance from backRight wheel to backLeft wheel
+        mecanumConfig.wheelDiameter = 3.77953;
+        double radius = mecanumConfig.wheelDiameter / 2;
+
+        double maxOmega = maxVelocity / radius;
+        double maxAlpha = maxAcceleration / radius;
+        double naturalAlpha = naturalDeceleration / radius;
+
+        double kA = (maxAlpha + naturalAlpha) / 13;
+        double kBackEMF = maxAlpha / maxOmega;
+
+        mecanumConfig.coefficients =  new double[]{
+                kA, kBackEMF, 0, naturalDeceleration / radius
+        };
+
+        // angular units
+        mecanumConfig.staticVelocityRegion = 2 / radius;
+        mecanumConfig.staticFriction = 45 / radius; // minimum accel to move
 
         simulationConfig.drivetrain = mecanumConfig;
         simulationConfig.gamepad1Keybinds = new Keybinds();
@@ -33,4 +49,3 @@ public class SimulateOpMode {
         DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
     }
 }
-

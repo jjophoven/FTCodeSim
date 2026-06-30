@@ -36,9 +36,17 @@ public class MotionVector {
     }
 
     public void log(String key) {
-        // TODO add coordinate class and also convert from inches to meters
-        Logger.recordOutput(key + "pedro coords", new Pose2d(x, y, new Rotation2d(theta)));
-        Logger.recordOutput(key + "ftc coords", new Pose2d(-y, x, new Rotation2d(theta + Math.PI/2)));
+        Logger.recordOutput(key + " Pedro coords (inches)", toPose2d());
+        Logger.recordOutput(key + " ftc coords (m)", toFtcCoords().toPose2d());
+    }
+
+    public MotionVector toFtcCoords() {
+        double inchesPerMeter = 39.37;
+        return new MotionVector(-y / inchesPerMeter, x / inchesPerMeter, theta + Math.PI/2);
+    }
+
+    public Pose2d toPose2d() {
+        return new Pose2d(x, y, new Rotation2d(theta));
     }
 
     public MotionVector plus(MotionVector other) {

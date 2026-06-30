@@ -35,11 +35,11 @@ public class FakeMotor implements DcMotorEx {
 
     public void step(double deltaTime) {
         acceleration = motorModel.predict(motorModelCoefficients, velocity, power, 13); // TODO get voltage from sensor
-//        if (Math.abs(velocity) < staticVelocityRegion && Math.abs(acceleration) < staticFriction) {
-//            velocity = 0;
-//            acceleration = 0;
-//            return;
-//        }
+        if (Math.abs(velocity) < staticVelocityRegion && Math.abs(acceleration) < staticFriction) {
+            velocity = 0;
+            acceleration = 0;
+            return;
+        }
         velocity += acceleration * deltaTime;
     }
 
@@ -57,6 +57,8 @@ public class FakeMotor implements DcMotorEx {
     }
 
     public void setPower(double power) {
+        if (power > 1) power = 1;
+        if (power < -1) power = -1;
         this.power = power;
     }
 

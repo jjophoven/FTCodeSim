@@ -17,6 +17,7 @@ public class MecanumConfig implements DrivetrainConfig {
     public double staticFriction;
     public double wheelbase;
     public double trackWidth;
+    public double wheelDiameter;
 
     FakeMotor[] motors = new FakeMotor[4];
 
@@ -52,6 +53,6 @@ public class MecanumConfig implements DrivetrainConfig {
     @Override
     public SimulatedDrivetrain createDrivetrain() {
         return new FakeMecanum(
-                motors, coefficients, wheelbase, trackWidth);
+                motors, coefficients, wheelbase, trackWidth, wheelDiameter);
     }
 }
