@@ -12,10 +12,10 @@ public class DefaultKeybinds extends Keybinds {
         keybinds.dpad_left = button(Keys.LEFT);
         keybinds.dpad_right = button(Keys.RIGHT);
 
-        keybinds.right_stick_x = joystick(Keys.J, Keys.L);
+        keybinds.right_stick_x = joystick(Keys.L, Keys.J);
         keybinds.right_stick_y = joystick(Keys.K, Keys.I);
 
-        keybinds.left_stick_x = joystick(Keys.A, Keys.D);
+        keybinds.left_stick_x = joystick(Keys.D, Keys.A);
         keybinds.left_stick_y = joystick(Keys.S, Keys.W);
 
         keybinds.back = button(Keys.TAB);

@@ -21,8 +21,8 @@ public class FieldCentricTeleop extends TeleOpMode {
         drivetrain.driveFieldCentric(
                 heading,
                 -gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
-                gamepad1.right_stick_x
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x
         );
     }
 
