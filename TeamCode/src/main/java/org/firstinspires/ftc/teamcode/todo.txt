@@ -24,15 +24,10 @@ simulate boundaries, goal, collisions, gamepieces, and shooting artifacts, and i
 each mecanum wheel
 
 
-TODO simulate boundaries collisions
+TODO simulate boundary collisions
+TODO simulate rolling gamepieces, intaking, colliding, and lastly shooting
+TODO new driver station UI
 
 NOT SIM:
 TODO implement gate blocking
-TODO implement alliance perspective driving
-
-4. TODO simulate boundaries collisions
-5. FIXME robot centric drifting
-6. TODO simulate gamepieces, rolling, intaking, colliding, and shooting
-7. TODO Clean up logs and change filepath
-
 TODO driver station UI
