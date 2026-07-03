@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drivetrain;
 
 import android.annotation.SuppressLint;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -27,6 +28,10 @@ public class Mecanum {
                 new CachingMotor(map.get(DcMotorEx.class, "backLeft"), powerDeadband),
                 new CachingMotor(map.get(DcMotorEx.class, "backRight"), powerDeadband)
         };
+
+        for (CachingMotor motor : motors) {
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
     }
 
     public void driveFieldCentric(double heading, double x, double y, double turn) {

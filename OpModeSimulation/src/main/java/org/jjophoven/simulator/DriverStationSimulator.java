@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
+// TODO make running faster and remove old deamons
 public class DriverStationSimulator {
     private static final int PORT = 8080;
     private static final int SOCKET_TIMEOUT_MS = 30000;
@@ -111,8 +112,6 @@ public class DriverStationSimulator {
 
     public void update() {
         poll();
-
-        simulationConfig.drivetrain.step(0.02);
         fakeHardwareMap.update();
     }
 

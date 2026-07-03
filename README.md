@@ -29,7 +29,7 @@ Make sure you set it to the right field selected.
 
 <img width="516" height="677" alt="image" src="https://github.com/user-attachments/assets/66377cb6-4f30-4afe-8a9c-8be97795b654" />
 
-4. Run `TeamCode/src/test/java/SimulateOpMode` and press init and start.
+4. Run `TeamCode/src/test/java/SimulateMecanum` and press init and start.
 
 4. Then drag fields you want to graph/visualize
 

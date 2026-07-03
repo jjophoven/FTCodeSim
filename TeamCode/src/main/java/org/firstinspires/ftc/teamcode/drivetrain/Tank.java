@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drivetrain;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -21,6 +22,10 @@ public class Tank {
                 new CachingMotor(map.get(DcMotorEx.class, "backLeft"), powerDeadband),
                 new CachingMotor(map.get(DcMotorEx.class, "backRight"), powerDeadband)
         };
+
+        for (CachingMotor motor : motors) {
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
     }
 
     public void driveFieldCentric(double heading, double x, double turn) {

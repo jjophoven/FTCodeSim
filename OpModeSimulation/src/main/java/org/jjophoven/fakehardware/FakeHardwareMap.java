@@ -8,13 +8,24 @@ import org.jjophoven.fakehardware.drivetrain.SimulatedDrivetrain;
 import java.util.List;
 
 public class FakeHardwareMap extends HardwareMap {
+    private SimulatedDrivetrain drivetrain;
+
+    public SimulatedDrivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
+    public void setDrivetrain(SimulatedDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
+    }
+
     public FakeHardwareMap() {
         super(null, null);
-        FakeVoltageSensor voltageSensor2 = new FakeVoltageSensor();
+        FakeVoltageSensor voltageSensor = new FakeVoltageSensor();
 
-        voltageSensor.put("voltageSensor", voltageSensor2);
+        // TODO automatically do this for every device
+        this.voltageSensor.put("voltageSensor", voltageSensor);
 
-        put("voltageSensor", voltageSensor2);
+        put("voltageSensor", voltageSensor);
     }
 
     public @Nullable <T> T tryGet(Class<? extends T> classOrInterface, String deviceName) {
@@ -40,7 +51,10 @@ public class FakeHardwareMap extends HardwareMap {
         return register(config.name, new FakeMotor(config));
     }
 
-    public FakeGobildaPinpoint pinpoint(String name, SimulatedDrivetrain drivetrain) {
+    public FakeGobildaPinpoint pinpoint(String name) {
+        if (drivetrain == null) {
+            throw new RuntimeException("Drivetrain not set");
+        }
         return register(name, new FakeGobildaPinpoint(drivetrain));
     }
 
@@ -50,6 +64,10 @@ public class FakeHardwareMap extends HardwareMap {
     }
 
     public void update() {
+        // TODO add deltaTime here to step and update
+        if (drivetrain != null) {
+            drivetrain.step(0.02);
+        }
         for (List<HardwareDevice> device : allDevicesMap.values()) {
             for (HardwareDevice d : device) {
                 try {

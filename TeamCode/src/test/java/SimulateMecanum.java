@@ -1,4 +1,3 @@
-import com.qualcomm.robotcore.hardware.DcMotor;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.drivetrain.FakeMecanum;
 import org.jjophoven.simulator.SimulationConfig;
@@ -8,7 +7,7 @@ import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
 import java.io.IOException;
 
-public class SimulateOpMode {
+public class SimulateMecanum {
     @Test
     public void test() throws IOException, InterruptedException {
         SimulationConfig simulationConfig = new SimulationConfig();
@@ -30,12 +29,13 @@ public class SimulateOpMode {
         mecanumConfig.strafeEfficiency = 0.90;
         mecanumConfig.fakeHardwareMap = fakeHardwareMap;
 
-        simulationConfig.drivetrain = new FakeMecanum(mecanumConfig);
+        fakeHardwareMap.setDrivetrain(new FakeMecanum(mecanumConfig));
+
         simulationConfig.gamepad1Keybinds = new Keybinds();
         simulationConfig.gamepad2Keybinds = new Keybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
 
-        fakeHardwareMap.pinpoint("pinpoint", simulationConfig.drivetrain);
+        fakeHardwareMap.pinpoint("pinpoint");
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
     }

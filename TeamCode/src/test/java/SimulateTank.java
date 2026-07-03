@@ -3,13 +3,12 @@ import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.drivetrain.FakeTank;
 import org.jjophoven.fakehardware.drivetrain.TankConfig;
 import org.jjophoven.simulator.SimulationConfig;
-import org.jjophoven.fakehardware.drivetrain.MecanumConfig;
 import org.jjophoven.input.Keybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
 import java.io.IOException;
 
-public class SimulateTank {
+public class SimulateTank { // TODO create a way to tag what opmodes are using which drivetrain
     @Test
     public void test() throws IOException, InterruptedException {
         SimulationConfig simulationConfig = new SimulationConfig();
@@ -30,12 +29,13 @@ public class SimulateTank {
         config.naturalDeceleration = 40;
         config.fakeHardwareMap = fakeHardwareMap;
 
-        simulationConfig.drivetrain = new FakeTank(config);
+        fakeHardwareMap.setDrivetrain(new FakeTank(config));
+
         simulationConfig.gamepad1Keybinds = new Keybinds();
         simulationConfig.gamepad2Keybinds = new Keybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
 
-        fakeHardwareMap.pinpoint("pinpoint", simulationConfig.drivetrain);
+        fakeHardwareMap.pinpoint("pinpoint");
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
     }
