@@ -2,7 +2,7 @@ package org.jjophoven.input;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class ExampleCustomKeyBinds extends Keybinds {
+public class ExampleCustomKeyBinds extends DefaultKeybinds {
     @Override
     public Gamepad keybinds(Gamepad keybinds) {
         keybinds.right_stick_x = joystick(Keys.RIGHT, Keys.LEFT);
@@ -23,8 +23,6 @@ public class ExampleCustomKeyBinds extends Keybinds {
         keybinds.dpad_down = button(Keys.K);
         keybinds.dpad_left = button(Keys.J);
         keybinds.dpad_right = button(Keys.L);
-
-        // Ye, i quit, i don't wanna finish the rest of this
 
         return keybinds;
     }

@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.devices.FakeTelemetry;
-import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.input.Keybinds;
 
 import java.io.*;
@@ -14,6 +13,11 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
+// TODO simulate boundary collisions
+// TODO simulate rolling and colliding game pieces,
+// TODO intake and shoot game pieces (low priority)
+// TODO optimize loop times and make it configurable + fix ascope time lapsed
+// TODO add ascope and default robot models in github releases
 public class DriverStationSimulator {
     private static final int PORT = 8080;
     private static final int SOCKET_TIMEOUT_MS = 30000;

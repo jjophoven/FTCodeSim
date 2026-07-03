@@ -5,6 +5,9 @@ import org.psilynx.psikit.core.Logger;
 import org.psilynx.psikit.core.wpi.math.*;
 import org.psilynx.psikit.ftc.autolog.PsiKitAutoLog;
 
+// TODO implement gate blocking (preventing drivers from going near penalty)
+// TODO zone detection/autoshooting / help align heading
+
 @PsiKitAutoLog
 public abstract class TeleOpMode extends RobotOpMode {
     protected boolean initialized = false;

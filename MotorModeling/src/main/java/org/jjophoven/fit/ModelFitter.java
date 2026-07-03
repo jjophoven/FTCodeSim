@@ -62,7 +62,6 @@ public class ModelFitter {
         List<DataSet> datasets = new ArrayList<>();
         for (String path : paths) {
             datasets.add(loadAndFilterAndSmooth(path, windowSize, polyDegree));
-            // TODO add time between trails
         }
 
         int totalSamples = datasets.stream().mapToInt(d -> d.vels.length).sum();

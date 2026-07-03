@@ -115,8 +115,6 @@ public class MotorSimulations {
         });
     }
 
-    // TODO add constraints, motion profile vs controller, only subtract -0.2 when braking not cruising
-
     @Test
     public void predictivePIDF2() throws InterruptedException {
         this.runSimulationTwice((currentPos, currentVel, targetPos) -> {

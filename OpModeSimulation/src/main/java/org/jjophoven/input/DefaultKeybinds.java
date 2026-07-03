@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.util.Set;
 
+// TODO make a keyboard to controller image map
 public class DefaultKeybinds extends Keybinds {
     @Override
     public Gamepad keybinds(Gamepad keybinds) {
