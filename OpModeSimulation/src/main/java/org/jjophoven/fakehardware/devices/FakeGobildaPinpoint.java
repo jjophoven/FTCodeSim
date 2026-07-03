@@ -1,4 +1,4 @@
-package org.jjophoven.fakehardware;
+package org.jjophoven.fakehardware.devices;
 
 import androidx.annotation.Nullable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -7,10 +7,19 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.TimestampedData;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.jjophoven.fakehardware.drivetrain.SimulatedDrivetrain;
 
-public class FakeGobildaPinpoint extends GoBildaPinpointDriver {
-    public FakeGobildaPinpoint() {
+public class FakeGobildaPinpoint extends GoBildaPinpointDriver implements FakeHardwareDevice {
+    private final SimulatedDrivetrain drivetrain;
+
+    public FakeGobildaPinpoint(SimulatedDrivetrain drivetrain) {
         super(new FakeI2C(), false);
+        this.drivetrain = drivetrain;
+    }
+
+    @Override
+    public void update() {
+        pose2D = drivetrain.getPose(); // TODO add optional noise
     }
 
     @Override

@@ -35,6 +35,8 @@ public class SimulateTank {
         simulationConfig.gamepad2Keybinds = new Keybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
 
+        fakeHardwareMap.pinpoint("pinpoint", simulationConfig.drivetrain);
+
         DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
     }
 }

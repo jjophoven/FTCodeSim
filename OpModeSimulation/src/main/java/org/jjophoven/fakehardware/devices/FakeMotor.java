@@ -1,4 +1,4 @@
-package org.jjophoven.fakehardware;
+package org.jjophoven.fakehardware.devices;
 
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -7,32 +7,19 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.jjophoven.fit.MotorModel;
 
-public class FakeMotor implements DcMotorEx {
+public class FakeMotor implements DcMotorEx, FakeHardwareDevice {
     private double power = 0;
     public double velocity = 0;
     private double acceleration = 0;
 
-    MotorModel motorModel;
-    double[] zeroPowerBrakeCoefficients;
-    double[] modelCoefficients;
-    double staticVelocityRegion;
-    double staticFriction;
     public String deviceName;
     public ZeroPowerBehavior zeroPowerBehavior;
-    public FakeHardwareMap fakeHardwareMap;
 
-    public FakeMotor(FakeHardwareMap fakeHardwareMap, String name, MotorModel motorModel, double[] modelCoefficients, double[] zeroPowerBrakeCoefficients, double staticVelocityRegion, double staticFriction) {
-        this.fakeHardwareMap = fakeHardwareMap;
-        this.deviceName = name;
-        this.motorModel = motorModel;
-        this.modelCoefficients = modelCoefficients;
-        this.zeroPowerBrakeCoefficients = zeroPowerBrakeCoefficients;
-        this.staticVelocityRegion = staticVelocityRegion;
-        this.staticFriction = staticFriction;
+    public FakeMotorConfig config;
 
-        fakeHardwareMap.put(name, this);
+    public FakeMotor(FakeMotorConfig config) {
+        this.config = config;
     }
 
     @Override
@@ -40,15 +27,17 @@ public class FakeMotor implements DcMotorEx {
 
     }
 
-    public void step(double deltaTime) {
-        double voltage = fakeHardwareMap.voltageSensor.iterator().next().getVoltage();
+    @Override
+    public void update() {
+        double deltaTime = 0.02;
+        double voltage = config.voltageSensor.getVoltage();
         if (zeroPowerBehavior == ZeroPowerBehavior.BRAKE && power == 0) {
-            acceleration = motorModel.predict(zeroPowerBrakeCoefficients, velocity, power, voltage);
+            acceleration = config.motorModel.predict(config.zeroPowerBrakeCoefficients, velocity, power, voltage);
         }
         else {
-            acceleration = motorModel.predict(modelCoefficients, velocity, power, voltage);
+            acceleration = config.motorModel.predict(config.modelCoefficients, velocity, power, voltage);
         }
-        if (Math.abs(velocity) < staticVelocityRegion && Math.abs(acceleration) < staticFriction) {
+        if (Math.abs(velocity) < config.staticVelocityRegion && Math.abs(acceleration) < config.staticFriction) {
             velocity = 0;
             acceleration = 0;
             return;

@@ -2,12 +2,9 @@ package org.jjophoven.simulator;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.fakehardware.FakeHardwareMap;
-import org.jjophoven.fakehardware.FakeTelemetry;
+import org.jjophoven.fakehardware.devices.FakeTelemetry;
 import org.jjophoven.input.Keybinds;
 
 import java.io.*;
@@ -116,12 +113,7 @@ public class DriverStationSimulator {
         poll();
 
         simulationConfig.drivetrain.step(0.02);
-        fakeHardwareMap.pinpoint.pose2D =
-                new Pose2D(DistanceUnit.MM,
-                        0,
-                        0,
-                        AngleUnit.RADIANS,
-                        AngleUnit.normalizeRadians(simulationConfig.drivetrain.position.theta));
+        fakeHardwareMap.update();
     }
 
     public void poll() {

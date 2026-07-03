@@ -10,4 +10,5 @@ public abstract class DrivetrainConfig {
     public double wheelRadius;
     public double staticVelocityRegion;
     public double staticFriction;
+    public double nominalVoltage = 13;
 }

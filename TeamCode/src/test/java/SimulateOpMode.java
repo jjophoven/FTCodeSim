@@ -14,10 +14,6 @@ public class SimulateOpMode {
         SimulationConfig simulationConfig = new SimulationConfig();
         FakeHardwareMap fakeHardwareMap = new FakeHardwareMap();
 
-        fakeHardwareMap.put("pinpoint", fakeHardwareMap.pinpoint);
-
-        // TODO fakeHardwareMap.setPinpointName()
-
         MecanumConfig mecanumConfig = new MecanumConfig();
         mecanumConfig.frontLeftMotorName = "frontLeft";
         mecanumConfig.frontRightMotorName = "frontRight";
@@ -38,6 +34,8 @@ public class SimulateOpMode {
         simulationConfig.gamepad1Keybinds = new Keybinds();
         simulationConfig.gamepad2Keybinds = new Keybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
+
+        fakeHardwareMap.pinpoint("pinpoint", simulationConfig.drivetrain);
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
     }

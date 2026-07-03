@@ -1,8 +1,8 @@
-package org.jjophoven.fakehardware;
+package org.jjophoven.fakehardware.devices;
 
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-public class FakeVoltageSensor implements VoltageSensor {
+public class FakeVoltageSensor implements VoltageSensor, FakeHardwareDevice {
     @Override
     public double getVoltage() {
         return 13;
@@ -35,6 +35,11 @@ public class FakeVoltageSensor implements VoltageSensor {
 
     @Override
     public void close() {
+
+    }
+
+    @Override
+    public void update() {
 
     }
 }

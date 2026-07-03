@@ -1,4 +1,4 @@
-package org.jjophoven.fakehardware;
+package org.jjophoven.fakehardware.devices;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
