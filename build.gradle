@@ -60,6 +60,9 @@ tasks.register("runSimulatorServer", JavaExec) {
         enabled = true
         port = 5005
         server = true
-        suspend = true
+        // Do not suspend the process waiting for a debugger by default; that leaves
+        // the Gradle process blocked and can look like a "busy" daemon. Make it
+        // non-suspending so runs don't hang waiting for an external debugger.
+        suspend = false
     }
 }

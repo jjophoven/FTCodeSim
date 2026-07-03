@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO make running faster and remove old deamons
 public class DriverStationSimulator {
     private static final int PORT = 8080;
     private static final int SOCKET_TIMEOUT_MS = 30000;
@@ -50,6 +49,11 @@ public class DriverStationSimulator {
             while (state == OpModeState.WAIT_FOR_INIT) {
                 poll();
                 Thread.sleep(20);
+            }
+
+            if (opMode == null || state == null) {
+                close();
+                return;
             }
 
             opMode.init();
@@ -202,11 +206,18 @@ public class DriverStationSimulator {
 
     private static Process startDriverStationProcess() throws IOException {
         File projectRoot = findProjectRoot();
-        File gradlew = new File(projectRoot, isWindows() ? "gradlew.bat" : "gradlew");
+        File driverStationJar = new File(projectRoot,
+                "DriverStationClient/build/libs/DriverStationWindow.jar");
 
+        if (!driverStationJar.exists()) {
+            buildDriverStationJar(projectRoot);
+        }
+
+        String javaExe = findJavaExecutable();
         Process process = new ProcessBuilder(
-                gradlew.getAbsolutePath(),
-                "runDriverStationWindow"
+                javaExe,
+                "-jar",
+                driverStationJar.getAbsolutePath()
         )
                 .directory(projectRoot)
                 .redirectErrorStream(true)
@@ -225,6 +236,61 @@ public class DriverStationSimulator {
             }
         }).start();
         return process;
+    }
+
+    /**
+     * Build the DriverStationWindow fat JAR using Gradle (one-time operation).
+     * This is only called if the JAR doesn't already exist.
+     */
+    private static void buildDriverStationJar(File projectRoot) throws IOException {
+        System.out.println("[DriverStation] Building DriverStationWindow fat JAR (this happens once)...");
+
+        File gradlew = new File(projectRoot, isWindows() ? "gradlew.bat" : "gradlew");
+        Process buildProcess = new ProcessBuilder(
+                gradlew.getAbsolutePath(),
+                ":DriverStationClient:shadowJar"
+        )
+                .directory(projectRoot)
+                .redirectErrorStream(true)
+                .start();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(buildProcess.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println("[DriverStation Build] " + line);
+            }
+        }
+
+        int exitCode = 0;
+        try {
+            exitCode = buildProcess.waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Build interrupted", e);
+        }
+
+        if (exitCode != 0) {
+            throw new IOException("Failed to build DriverStationWindow JAR (exit code: " + exitCode + ")");
+        }
+
+        System.out.println("[DriverStation] JAR build complete!");
+    }
+
+    /**
+     * Find the Java executable to use.
+     * Prefers JAVA_HOME environment variable, falls back to 'java' in PATH.
+     */
+    private static String findJavaExecutable() {
+        String javaHome = System.getenv("JAVA_HOME");
+        if (javaHome != null && !javaHome.isEmpty()) {
+            File javaExe = new File(javaHome, "bin" + File.separator + (isWindows() ? "java.exe" : "java"));
+            if (javaExe.exists()) {
+                return javaExe.getAbsolutePath();
+            }
+        }
+        // Fall back to 'java' in PATH
+        return isWindows() ? "java.exe" : "java";
     }
 
     private static File findProjectRoot() throws IOException {
