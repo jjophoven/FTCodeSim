@@ -2,7 +2,7 @@ import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.drivetrain.FakeMecanum;
 import org.jjophoven.simulator.SimulationConfig;
 import org.jjophoven.fakehardware.drivetrain.MecanumConfig;
-import org.jjophoven.input.Keybinds;
+import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
 import java.io.IOException;
@@ -31,8 +31,8 @@ public class SimulateMecanum {
 
         fakeHardwareMap.setDrivetrain(new FakeMecanum(mecanumConfig));
 
-        simulationConfig.gamepad1Keybinds = new Keybinds();
-        simulationConfig.gamepad2Keybinds = new Keybinds();
+        simulationConfig.gamepad1Keybinds = new DefaultKeybinds();
+        simulationConfig.gamepad2Keybinds = new DefaultKeybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
 
         fakeHardwareMap.pinpoint("pinpoint");

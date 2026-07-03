@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.devices.FakeTelemetry;
+import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.input.Keybinds;
 
 import java.io.*;

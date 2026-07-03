@@ -1,6 +1,7 @@
 package org.jjophoven.simulator;
 
 import org.jjophoven.fakehardware.FakeHardwareMap;
+import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.input.Keybinds;
 
 

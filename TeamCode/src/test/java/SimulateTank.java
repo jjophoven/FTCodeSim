@@ -1,9 +1,8 @@
-import com.qualcomm.robotcore.hardware.DcMotor;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.drivetrain.FakeTank;
 import org.jjophoven.fakehardware.drivetrain.TankConfig;
 import org.jjophoven.simulator.SimulationConfig;
-import org.jjophoven.input.Keybinds;
+import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
 import java.io.IOException;
@@ -31,8 +30,8 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
 
         fakeHardwareMap.setDrivetrain(new FakeTank(config));
 
-        simulationConfig.gamepad1Keybinds = new Keybinds();
-        simulationConfig.gamepad2Keybinds = new Keybinds();
+        simulationConfig.gamepad1Keybinds = new DefaultKeybinds();
+        simulationConfig.gamepad2Keybinds = new DefaultKeybinds();
         simulationConfig.fakeHardwareMap = fakeHardwareMap;
 
         fakeHardwareMap.pinpoint("pinpoint");
