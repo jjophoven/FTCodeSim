@@ -2,11 +2,12 @@ package org.jjophoven.simulator;
 
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.input.DefaultKeybinds;
+import org.jjophoven.input.Keybinds;
 
 
 public class SimulationConfig {
     public FakeHardwareMap fakeHardwareMap;
 
-    public DefaultKeybinds gamepad1Keybinds;
-    public DefaultKeybinds gamepad2Keybinds;
+    public Keybinds gamepad1Keybinds;
+    public Keybinds gamepad2Keybinds;
 }

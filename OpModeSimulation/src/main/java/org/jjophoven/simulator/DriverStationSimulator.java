@@ -6,6 +6,7 @@ import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.devices.FakeTelemetry;
 import org.jjophoven.input.DefaultKeybinds;
+import org.jjophoven.input.Keybinds;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -29,8 +30,8 @@ public class DriverStationSimulator {
 
     OpMode opMode;
     FakeHardwareMap fakeHardwareMap;
-    DefaultKeybinds gamepad1Keybinds;
-    DefaultKeybinds gamepad2Keybinds;
+    Keybinds gamepad1Keybinds;
+    Keybinds gamepad2Keybinds;
     OpModeRegister opModeRegister = new OpModeRegister();
     SimulationConfig simulationConfig;
 
