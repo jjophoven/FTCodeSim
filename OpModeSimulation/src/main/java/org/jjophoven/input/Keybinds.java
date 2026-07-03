@@ -15,8 +15,8 @@ public abstract class Keybinds {
         changes = keybinds(changes);
         g.fromByteArray(changes.toByteArray());
     }
-    public float joystick(int positive, int negative) {
-        return (this.keys.contains(positive) ? 1 : 0) - (this.keys.contains(negative) ? 1 : 0);
+    public float joystick(int positiveKeyCode, int negativeKeyCode) {
+        return (this.keys.contains(positiveKeyCode) ? 1 : 0) - (this.keys.contains(negativeKeyCode) ? 1 : 0);
     }
     public float trigger(int triggerKeyCode) {
         return this.keys.contains(triggerKeyCode) ? 1 : 0;
