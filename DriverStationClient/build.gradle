@@ -8,7 +8,10 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
+    implementation 'com.github.WilliamAHartman:Jamepad:1.3.2'
+
     implementation "com.github.kwhat:jnativehook:2.2.2"
 }
 
