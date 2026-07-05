@@ -58,6 +58,7 @@ public abstract class RobotOpMode extends OpMode {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         localizer = new PinpointLocalizer(hardwareMap, new PinpointConstants());
+        localizer.setPose(new Pose(141.5/2, 141.5/2, 0));
 
         drivetrain = new Mecanum(hardwareMap);
 

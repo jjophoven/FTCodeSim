@@ -6,7 +6,10 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.TimestampedData;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.jjophoven.simhardware.drivetrain.MotionVector;
 import org.jjophoven.simhardware.drivetrain.SimulatedDrivetrain;
 
 public class SimGobildaPinpoint extends GoBildaPinpointDriver implements SimHardwareDevice {
@@ -19,7 +22,13 @@ public class SimGobildaPinpoint extends GoBildaPinpointDriver implements SimHard
 
     @Override
     public void update(double deltaTime) {
-        pose2D = drivetrain.getPose(); // TODO add optional noise
+        pose2D = drivetrain.getActualPose(); // TODO add optional noise
+    }
+
+    @Override
+    public void setPosition(Pose2D pos) {
+        pose2D = pos;
+        drivetrain.position = new MotionVector(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS));
     }
 
     @Override

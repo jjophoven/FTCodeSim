@@ -29,12 +29,8 @@ public abstract class SimulatedDrivetrain {
         motorAngularVelocities = new double[motors.length];
     }
 
-    public Pose2D getPose() {
-        return new Pose2D(DistanceUnit.INCH,
-                position.x,
-                position.y,
-                AngleUnit.RADIANS,
-                AngleUnit.normalizeRadians(position.theta));
+    public Pose2D getActualPose() {
+        return position.toPose2D();
     }
 
     public SimMotor createMotor(String name) {

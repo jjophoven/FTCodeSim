@@ -1,5 +1,8 @@
 package org.jjophoven.simhardware.drivetrain;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.psilynx.psikit.core.Logger;
 import org.psilynx.psikit.core.wpi.math.Pose2d;
 import org.psilynx.psikit.core.wpi.math.Rotation2d;
@@ -36,8 +39,8 @@ public class MotionVector {
     }
 
     public void log(String key) {
-        Logger.recordOutput(key + " Pedro coords (inches)", toPose2d());
-        Logger.recordOutput(key + " ftc coords (m)", toFtcCoords().toPose2d());
+        Logger.recordOutput(key + " Pedro coords (inches)", toWPIPose());
+        Logger.recordOutput(key + " ftc coords (m)", toFtcCoords().toWPIPose());
     }
 
     public MotionVector toFtcCoords() {
@@ -46,8 +49,16 @@ public class MotionVector {
         return new MotionVector(-(y - halfField) / inchesPerMeter, (x - halfField) / inchesPerMeter, theta + Math.PI/2);
     }
 
-    public Pose2d toPose2d() {
+    public Pose2d toWPIPose() {
         return new Pose2d(x, y, new Rotation2d(theta));
+    }
+
+    public Pose2D toPose2D() {
+        return new Pose2D(DistanceUnit.INCH,
+                x,
+                y,
+                AngleUnit.RADIANS,
+                AngleUnit.normalizeRadians(theta));
     }
 
     public MotionVector plus(MotionVector other) {
