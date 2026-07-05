@@ -93,6 +93,19 @@ public abstract class SimulatedDrivetrain {
         position.log("Mecanum/position");
     }
 
+    public void setPosition(MotionVector position) {
+        this.position = position;
+    }
+
+    public void setVelocity(MotionVector velocity) {
+        this.velocity = velocity;
+        // Accounts for wheels moving from whole robot moving
+        motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
+        for (int i = 0; i < motors.length; i++) {
+            motors[i].setRollVelocity(motorAngularVelocities[i]);
+        }
+    }
+
     abstract MotionVector forwardKinematics(double[] motors);
     abstract double[] inverseKinematics(MotionVector motion);
 }

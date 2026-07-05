@@ -22,7 +22,7 @@ public class SimulateMecanum {
         mecanumConfig.wheelRadius = 1.889765;
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
-        mecanumConfig.maxAcceleration = 200;
+        mecanumConfig.maxAcceleration = 150;
         mecanumConfig.maxVelocity = 70;
         mecanumConfig.naturalDeceleration = 40;
         mecanumConfig.strafeEfficiency = 0.90;

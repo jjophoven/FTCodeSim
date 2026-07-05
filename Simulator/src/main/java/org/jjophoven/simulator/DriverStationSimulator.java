@@ -9,6 +9,7 @@ import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.devices.SimTelemetry;
 import org.jjophoven.input.Keybinds;
+import org.jjophoven.simhardware.drivetrain.MotionVector;
 import org.psilynx.psikit.core.Logger;
 import org.psilynx.psikit.ftc.FtcLoggingSession;
 
@@ -149,6 +150,10 @@ public class DriverStationSimulator {
 
         Pose2D pose = simHardwareMap.getDrivetrain().getActualPose();
         boolean isOutOfBounds = Boundaries.isOutOfBounds(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), 12, 18, pose.getHeading(AngleUnit.RADIANS));
+        if (isOutOfBounds) {
+            Boundaries.Point closest = Boundaries.closestInBoundsPosition(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), 12, 18, pose.getHeading(AngleUnit.RADIANS));
+            simHardwareMap.getDrivetrain().setPosition(new MotionVector(closest.x, closest.y, pose.getHeading(AngleUnit.RADIANS)));
+        }
         Logger.recordOutput("isInBounds", !isOutOfBounds);
 
     }
