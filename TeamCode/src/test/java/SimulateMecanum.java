@@ -17,13 +17,13 @@ public class SimulateMecanum {
         mecanumConfig.frontRightMotorName = "frontRight";
         mecanumConfig.backLeftMotorName = "backLeft";
         mecanumConfig.backRightMotorName = "backRight";
-        mecanumConfig.wheelbase = 9.37008;
-        mecanumConfig.trackWidth = 9.13386;
+        mecanumConfig.wheelbase = 9.5767;
+        mecanumConfig.trackWidth = 8.66142;
         mecanumConfig.wheelRadius = 1.889765;
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
-        mecanumConfig.maxAcceleration = 200;
-        mecanumConfig.maxVelocity = 70;
+        mecanumConfig.maxAcceleration = 250;
+        mecanumConfig.maxVelocity = 89.72;
         mecanumConfig.naturalDeceleration = 40;
         mecanumConfig.strafeEfficiency = 0.90;
         mecanumConfig.simHardwareMap = simHardwareMap;
