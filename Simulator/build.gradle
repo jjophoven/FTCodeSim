@@ -41,32 +41,3 @@ dependencies {
     implementation project(':MotorModeling')
     testImplementation 'junit:junit:4.13.2'
 }
-
-// 1. Ensure you have these plugins applied at the top
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
-
-android {
-    // ... your existing android configs (namespace, compileSdk, etc.) ...
-
-    // 2. ADD THIS inside the android block to generate the component:
-    publishing {
-        singleVariant('release') {
-            // Optional: Also packages sources and javadocs so users can see your code/comments
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-}
-
-// 3. Keep this at the bottom (what you already added)
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                artifactId = 'Simulator'
-            }
-        }
-    }
-}

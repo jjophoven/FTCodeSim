@@ -27,4 +27,5 @@ dependencies {
     implementation project(':FtcRobotController')
     implementation project(':Simulator')
     testImplementation 'junit:junit:4.13.2'
+    implementation "dev.nextftc:control2:0.0.3"
 }

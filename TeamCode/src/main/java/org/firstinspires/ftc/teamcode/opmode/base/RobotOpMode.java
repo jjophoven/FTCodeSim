@@ -110,6 +110,18 @@ public abstract class RobotOpMode extends OpMode {
         Logger.recordOutput("Loop/raw loop time (ms)", timer.getDtMs());
         Logger.recordOutput("Loop/runtime secs", timer.getRuntime());
         Logger.recordOutput("Robot/battery voltage", voltageSensor.getVoltage());
+
+        double voltage = voltageSensor.getVoltage();
+
+        context.telemetry.addLine(String.format(
+                "Battery: %s %.1f%% (%.2fV)",
+                getBatteryStatus(voltage),
+                voltage / 14.5 * 100,
+                voltage
+        ));
+        context.telemetry.addLine("Loop Time: " + String.format("%.3f ms", timer.getSmoothedDtMs()));
+        context.telemetry.addLine("Start Pose: " + pose);
+        context.telemetry.update();
     }
 
     @Override

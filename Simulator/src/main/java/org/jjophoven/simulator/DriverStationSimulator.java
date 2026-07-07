@@ -97,26 +97,36 @@ public class DriverStationSimulator {
 
     public @Nullable OpMode waitForOpModeInit() throws IOException, InterruptedException {
         OpMode selectedOpMode = null;
-        while (in.available() > 0) {
-            switch (in.readByte()) {
-                case Packet.STATE:
-                    this.state = OpModeState.read(in);
-                    if (this.state == null) {
-                        close();
-                        return null;
-                    }
-                    if (this.state == OpModeState.INITIALIZING) {
-                        return selectedOpMode;
-                    }
-                    break;
-                case Packet.OPMODE:
-                    OpModePacket packet = OpModePacket.read(in);
-                    selectedOpMode = opModeRegister.getOpMode(packet);
-                    break;
+
+        while (true) {
+            while (in.available() > 0) {
+                switch (in.readByte()) {
+                    case Packet.STATE:
+                        state = OpModeState.read(in);
+
+                        if (state == null) {
+                            close();
+                            return null;
+                        }
+
+                        if (state == OpModeState.INITIALIZING) {
+                            return selectedOpMode;
+                        }
+                        break;
+
+                    case Packet.OPMODE:
+                        OpModePacket packet = OpModePacket.read(in);
+                        selectedOpMode = opModeRegister.getOpMode(packet);
+                        break;
+                }
             }
+
+            if (!driverStationWindow.isAlive()) {
+                return null;
+            }
+
+            Thread.sleep(config.loopTimeMs);
         }
-        Thread.sleep(config.loopTimeMs);
-        return waitForOpModeInit();
     }
 
     public void wrap(Runnable runnable, OpMode opMode, FtcLoggingSession loggingSession) throws InterruptedException {
