@@ -1,3 +1,6 @@
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 run {
     val runDriverStationWindowReference = gradle.includedBuild("DriverStationWindow").task(":run")
 
@@ -42,5 +45,15 @@ run {
         dependsOn(publishMotorModeling)
         dependsOn(publishDriverStationWindow)
         dependsOn(publishSimulator)
+    }
+}
+
+subprojects {
+    plugins.withId("java") {
+        extensions.configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(8))
+            }
+        }
     }
 }
