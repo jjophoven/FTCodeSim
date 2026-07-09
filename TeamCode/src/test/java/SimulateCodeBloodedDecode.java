@@ -25,9 +25,9 @@ public class SimulateCodeBloodedDecode {
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
         mecanumConfig.maxAcceleration = 150;
-        mecanumConfig.maxVelocity = 70;
+        mecanumConfig.maxVelocity = 75;
         mecanumConfig.naturalDeceleration = 40;
-        mecanumConfig.strafeEfficiency = 0.90;
+        mecanumConfig.strafeEfficiency = 0.80;
         mecanumConfig.simHardwareMap = simHardwareMap;
 
         simHardwareMap.setDrivetrain(new SimulatedMecanum(mecanumConfig));

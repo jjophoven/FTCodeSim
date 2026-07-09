@@ -17,7 +17,7 @@ public class SimVoltageSensor implements VoltageSensor, SimHardwareDevice {
 
     public SimVoltageSensor() {
         //batteryVoltage = 13.9 + random.nextDouble() * 0.3;
-        batteryVoltage = 13;
+        batteryVoltage = 13.1;
         reportedVoltage = batteryVoltage;
     }
 

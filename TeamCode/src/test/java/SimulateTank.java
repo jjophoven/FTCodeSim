@@ -19,11 +19,11 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
         config.backLeftMotorName = "backLeft";
         config.backRightMotorName = "backRight";
         config.trackWidth = 16;
-        config.wheelRadius = 1.889765;
+        config.wheelRadius = 1.7716535;
         config.staticVelocityRegion = 2;
         config.staticFriction = 45;
         config.maxAcceleration = 200;
-        config.maxVelocity = 70;
+        config.maxVelocity = 40;
         config.naturalDeceleration = 40;
         config.simHardwareMap = simHardwareMap;
 
@@ -35,7 +35,7 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
         simConfig.gamepad2Keybinds = new DefaultKeybinds();
         simConfig.simHardwareMap = simHardwareMap;
         simConfig.loopTimeMs = 20;
-        simConfig.robotGeometry = new RobotGeometry(18, 18, 0, 0);
+        simConfig.robotGeometry = new RobotGeometry(16.53543, 19.015748, 0, 0);
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simConfig);
     }

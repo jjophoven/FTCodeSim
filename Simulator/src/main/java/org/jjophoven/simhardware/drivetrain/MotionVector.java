@@ -58,6 +58,10 @@ public class MotionVector {
         );
     }
 
+    public MotionVector times(MotionVector other) {
+        return new MotionVector(this.x * other.x, this.y * other.y, this.theta * other.theta);
+    }
+
     public MotionVector toFieldFrame(double heading) {
         return rotate(heading);
     }
@@ -99,6 +103,10 @@ public class MotionVector {
                 y,
                 AngleUnit.RADIANS,
                 AngleUnit.normalizeRadians(theta));
+    }
+
+    public static MotionVector fromPose2D(Pose2D pose) {
+        return new MotionVector(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), pose.getHeading(AngleUnit.RADIANS));
     }
 
     public MotionVector plus(MotionVector other) {

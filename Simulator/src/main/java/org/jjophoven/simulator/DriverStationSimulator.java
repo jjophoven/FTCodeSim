@@ -180,6 +180,7 @@ public class DriverStationSimulator {
     private final Set<Integer> heldKeys = new HashSet<>();
 
     private long previousTime = 0;
+    public MotionVector previousLegalPose = new MotionVector(141.5/2, 141.5/2, 0);
 
     public void updateHardware() {
         long currentTime = System.nanoTime();
@@ -189,11 +190,11 @@ public class DriverStationSimulator {
 
         Pose2D pose = simHardwareMap.getDrivetrain().getActualPose();
         RobotGeometry robot = config.robotGeometry;
-        MotionVector currentPose = new MotionVector(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), pose.getHeading(AngleUnit.RADIANS));
+        MotionVector currentPose = MotionVector.fromPose2D(pose);
         boolean isOutOfBounds = FieldBoundary.isOutOfBounds(currentPose, robot);
 
         if (isOutOfBounds) {
-            MotionVector closest = FieldBoundary.closestInBoundsPosition(currentPose, robot);
+            MotionVector closest = FieldBoundary.closestInBoundsPosition(previousLegalPose, currentPose, robot);
 
             MotionVector correctionDir = currentPose.minus(closest);
 
@@ -211,8 +212,12 @@ public class DriverStationSimulator {
                 simHardwareMap.getDrivetrain().setLinearVel(correctedVelocity);
             }
         }
+        else {
+            previousLegalPose = currentPose;
+        }
 
         Logger.recordOutput("isInBounds", !isOutOfBounds);
+        previousLegalPose.log("previousLegalPose");
 
     }
 

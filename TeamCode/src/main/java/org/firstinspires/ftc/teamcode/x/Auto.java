@@ -27,7 +27,8 @@ public class Auto extends OpMode {
 //        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
+//        follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(124.547, 116.437, Math.toRadians(36.5)));
 
         paths = new Paths(follower); // Build paths
 //
