@@ -7,6 +7,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 includeBuild("Examples")
 includeBuild("Simulator")
 includeBuild("DriverStationWindow")
