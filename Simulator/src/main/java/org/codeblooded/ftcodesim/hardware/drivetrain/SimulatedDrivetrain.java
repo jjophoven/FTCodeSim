@@ -1,29 +1,31 @@
 package org.codeblooded.ftcodesim.hardware.drivetrain;
 
+import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
+import org.codeblooded.ftcodesim.hardware.devices.*;
+import org.codeblooded.ftcodesim.physics.FieldBoundary;
 import org.codeblooded.ftcodesim.physics.MotionVector;
+import org.codeblooded.ftcodesim.physics.RobotGeometry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.codeblooded.ftcodesim.hardware.devices.SimMotor;
-import org.codeblooded.ftcodesim.hardware.devices.SimVoltageSensor;
-import org.codeblooded.ftcodesim.hardware.devices.SimMotorConfig;
 import org.codeblooded.fit.MotorModel;
 import org.psilynx.psikit.core.Logger;
 
-public abstract class SimulatedDrivetrain {
+public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     private final SimMotor[] motors;
 
     public MotionVector position = new MotionVector(0, 0, 0);
     public MotionVector velocity = new MotionVector(0, 0, 0);
 
     public SimDrivetrainConfig config;
+    public String[] motorNames;
+    public SimHardwareMap hardwareMap;
+    public SimVoltageSensor voltageSensor;
 
     protected double[] motorAngularVelocities;
 
     public SimulatedDrivetrain(SimDrivetrainConfig config, String... motorNames) {
         this.config = config;
         this.motors = new SimMotor[motorNames.length];
-        for (int i = 0; i < motorNames.length; i++) {
-            motors[i] = createMotor(motorNames[i]);
-        }
+        this.motorNames = motorNames;
 
         motorAngularVelocities = new double[motors.length];
     }
@@ -32,7 +34,15 @@ public abstract class SimulatedDrivetrain {
         return position.toPose2D();
     }
 
-    public SimMotor createMotor(String name) {
+    public void registerDevices(SimHardwareMap hardwareMap) {
+        this.hardwareMap = hardwareMap;
+        this.voltageSensor = (SimVoltageSensor) hardwareMap.voltageSensor.iterator().next();
+        for (int i = 0; i < motorNames.length; i++) {
+            motors[i] = registerMotor(motorNames[i]);
+        }
+    }
+
+    public SimMotor registerMotor(String name) {
         double maxOmega = config.maxVelocity / config.wheelRadius;
         double maxAlpha = config.maxAcceleration / config.wheelRadius;
         double naturalAlpha = config.naturalDeceleration / config.wheelRadius;
@@ -48,11 +58,11 @@ public abstract class SimulatedDrivetrain {
                 kA, kBackEMF, 0, kCoulombFriction
         };
 
-        SimMotorConfig motorConfig = new SimMotorConfig(name, MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)"), motorCoefficients, zeroPowerBrakeCoefficients, config.staticVelocityRegion/config.wheelRadius, config.staticFriction/config.wheelRadius, (SimVoltageSensor) config.simHardwareMap.voltageSensor.iterator().next());
-        return config.simHardwareMap.motor(motorConfig);
+        SimMotorConfig motorConfig = new SimMotorConfig(name, MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)"), motorCoefficients, zeroPowerBrakeCoefficients, config.staticVelocityRegion/config.wheelRadius, config.staticFriction/config.wheelRadius, voltageSensor);
+        return hardwareMap.motor(motorConfig);
     }
 
-    public void step(double deltaTime) {
+    public void update(double deltaTime) {
         boolean allMotorsStationary = true;
         for (int i = 0; i < motors.length; i++) {
             SimMotor motor = motors[i];
@@ -81,6 +91,41 @@ public abstract class SimulatedDrivetrain {
         // TODO maybe make it more accurate by calculating rolling accel?
 
         position.log("Mecanum/position");
+
+        collisionCheck();
+    }
+
+    MotionVector previousLegalPose = new MotionVector(0, 0, 0);
+
+    public void collisionCheck() {
+        Pose2D pose = getActualPose();
+        RobotGeometry robot = config.robotGeometry;
+        MotionVector currentPose = MotionVector.fromPose2D(pose);
+        boolean isOutOfBounds = FieldBoundary.isOutOfBounds(currentPose, robot);
+
+        if (isOutOfBounds) {
+            MotionVector closest = FieldBoundary.closestInBoundsPosition(previousLegalPose, currentPose, robot);
+
+            MotionVector correctionDir = currentPose.minus(closest);
+
+            if (correctionDir.magnitude() > 1e-6) {
+
+                MotionVector normal = correctionDir.unitVector();
+
+                double vOut = velocity.dot(normal);
+
+                MotionVector correctedVelocity = velocity.minus(normal.scale(vOut));
+
+                setPosition(closest);
+                setLinearVel(correctedVelocity);
+            }
+        }
+        else {
+            previousLegalPose = currentPose;
+        }
+
+        Logger.recordOutput("isInBounds", !isOutOfBounds);
+        previousLegalPose.log("previousLegalPose");
     }
 
     public void setPosition(MotionVector position) {

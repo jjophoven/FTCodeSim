@@ -1,4 +1,6 @@
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
+import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
+import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedTank;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimTankConfig;
 import org.codeblooded.ftcodesim.physics.RobotGeometry;
@@ -11,9 +13,6 @@ import java.io.IOException;
 public class SimulateTank {
     @Test
     public void test() throws IOException, InterruptedException {
-        RobotGeometry robotGeometry = new RobotGeometry(18, 18, 0, 0);
-        SimHardwareMap simHardwareMap = new SimHardwareMap(robotGeometry);
-
         SimTankConfig config = new SimTankConfig();
         config.frontLeftMotorName = "frontLeft";
         config.frontRightMotorName = "frontRight";
@@ -26,10 +25,12 @@ public class SimulateTank {
         config.maxAcceleration = 200;
         config.maxVelocity = 70;
         config.naturalDeceleration = 40;
-        config.simHardwareMap = simHardwareMap;
 
-        simHardwareMap.setDrivetrain(new SimulatedTank(config));
-        simHardwareMap.pinpoint("pinpoint");
+        SimulatedDrivetrain tank = new SimulatedTank(config);
+
+        SimHardwareMap simHardwareMap = new SimHardwareMap();
+        simHardwareMap.register(tank);
+        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(tank));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();

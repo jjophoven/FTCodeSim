@@ -1,3 +1,5 @@
+import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
+import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimMecanumConfig;
@@ -12,8 +14,7 @@ import java.io.IOException;
 public class SimulateCodeBloodedDecode {
     @Test
     public void test() throws IOException, InterruptedException {
-        RobotGeometry robotGeometry = new RobotGeometry(12, 18, 2, 0);
-        SimHardwareMap simHardwareMap = new SimHardwareMap(robotGeometry);
+        SimHardwareMap simHardwareMap = new SimHardwareMap();
 
         SimMecanumConfig mecanumConfig = new SimMecanumConfig();
         mecanumConfig.frontLeftMotorName = "frontLeft";
@@ -29,10 +30,12 @@ public class SimulateCodeBloodedDecode {
         mecanumConfig.maxVelocity = 75;
         mecanumConfig.naturalDeceleration = 40;
         mecanumConfig.strafeEfficiency = 0.80;
-        mecanumConfig.simHardwareMap = simHardwareMap;
+        mecanumConfig.robotGeometry = new RobotGeometry(12, 18, 2, 0);
 
-        simHardwareMap.setDrivetrain(new SimulatedMecanum(mecanumConfig));
-        simHardwareMap.pinpoint("pinpoint");
+        SimulatedDrivetrain drivetrain = new SimulatedMecanum(mecanumConfig);
+
+        simHardwareMap.register(drivetrain);
+        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(drivetrain));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();
