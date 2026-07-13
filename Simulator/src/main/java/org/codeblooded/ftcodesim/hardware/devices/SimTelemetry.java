@@ -70,9 +70,12 @@ public class SimTelemetry implements Telemetry {
 
     @Override
     public boolean update() {
+        if (toBeDisplayed.isEmpty()) {
+            return false;
+        }
         driverStation.sendTelemetry(toBeDisplayed);
         toBeDisplayed = "";
-        return false;
+        return true;
     }
 
     @Override

@@ -5,13 +5,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.psilynx.psikit.core.Logger;
-import org.psilynx.psikit.ftc.FtcLoggingSession;
 
-import java.lang.reflect.Field;
 
 public class OpModeLifecycle {
-    volatile boolean isStarted = false;
-    volatile boolean isStopped = false;
+    public volatile boolean isStarted = false;
+    public volatile boolean isStopped = false;
     OpMode opMode;
     SimHardwareMap simHardwareMap;
     SimTelemetry telemetry;
@@ -26,29 +24,20 @@ public class OpModeLifecycle {
         this.telemetry = telemetry;
     }
 
-    private void internalPreUserCode() {
-        opMode.time = opMode.getRuntime();
-        opMode.gamepad1.fromByteArray(latestGamepad1Data);
-        opMode.gamepad2.fromByteArray(latestGamepad2Data);
-    }
-
-    private void internalPostUserCode() {
-        //opMode.telemetry.update();
-    }
-
     public void runOpMode() throws InterruptedException {
         opMode.telemetry = telemetry;
         opMode.hardwareMap = simHardwareMap;
         opMode.gamepad1 = new Gamepad();
         opMode.gamepad2 = new Gamepad();
 
-        FtcLoggingSession ftcLog = new FtcLoggingSession();
-        ftcLog.start(opMode, 5800, "", true, "sim-logs", null, opMode);
+        SimFtcLogger ftcLog = new SimFtcLogger();
+        ftcLog.start(opMode, 5800, "", true, "sim-logs");
+        Logger.setSimulation(true);
 
         long start = System.nanoTime();
         Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
 
-        opMode.init();
+        opMode.init(); // TODO wrap this with internals
 
         while (!isStarted && !isStopped) {
             wrap(opMode::init_loop, opMode, ftcLog);
@@ -65,55 +54,42 @@ public class OpModeLifecycle {
         Logger.end();
     }
 
-    public void wrap(Runnable runnable, OpMode opMode, FtcLoggingSession ftcLog) throws InterruptedException {
-        internalPreUserCode();
+    public void wrap(Runnable runnable, OpMode opMode, SimFtcLogger ftcLog) throws InterruptedException {
+        long loopStart = System.nanoTime();
+
+        // FTC SDK's internalPreUserCode
+        opMode.time = opMode.getRuntime();
+        opMode.gamepad1.fromByteArray(latestGamepad1Data);
+        opMode.gamepad2.fromByteArray(latestGamepad2Data);
 
         simHardwareMap.update();
 
-        Logger.periodicBeforeUser();
-        ftcLog.logOncePerLoop(opMode);
+        long logStart = System.nanoTime();
 
+        ftcLog.logOncePerLoop(opMode, isStarted, isStopped);
+        Logger.periodicBeforeUser();
+
+        long userCodeStart = System.nanoTime();
         runnable.run();
+        long userCodeEnd = System.nanoTime();
 
         Logger.periodicAfterUser(0,0);
+
+        long logEnd = System.nanoTime();
+
+        // FTC SDK's internalPostUserCode
+        opMode.telemetry.update();
+
+        long simEnd = System.nanoTime();
+
         Thread.sleep(loopTimeMs);
 
-        internalPostUserCode();
-    }
-
-    private void setBooleanFieldIfPresent(Object target, String fieldName, boolean value) {
-        Class<?> clazz = target.getClass();
-
-        while (clazz != null) {
-            try {
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                field.setBoolean(target, value);
-                return;
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
-            } catch (Throwable e) {
-                return;
-            }
-        }
-
-    }
-
-    public void setStarted(boolean started) {
-        setBooleanFieldIfPresent(opMode, "isStarted", started);
-        isStarted = started;
-    }
-
-    public void setStopped(boolean stopped) {
-        setBooleanFieldIfPresent(opMode, "stopRequested", stopped);
-        isStopped = stopped;
-    }
-
-    public boolean isStarted() {
-        return isStarted;
-    }
-
-    public boolean isStopped() {
-        return isStopped;
+        long loopEnd = System.nanoTime();
+        long userCodeTime = userCodeEnd - userCodeStart;
+        Logger.recordOutput("OpMode/noSleepMs", (simEnd - loopStart) * 1e-6);
+        Logger.recordOutput("OpMode/totalLoopTimeMs", (loopEnd - loopStart) * 1e-6);
+        Logger.recordOutput("OpMode/userCodeMs", userCodeTime * 1e-6);
+        Logger.recordOutput("OpMode/simHardwareMs", (logStart - loopStart) * 1e-6);
+        Logger.recordOutput("OpMode/logMs", (logEnd - logStart - userCodeTime) * 1e-6);
     }
 }

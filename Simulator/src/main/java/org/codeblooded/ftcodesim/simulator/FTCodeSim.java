@@ -150,18 +150,18 @@ public class FTCodeSim {
                         System.out.println("RECEIVED STATE: " + this.state);
 
                         if (state == null) {
-                            opModeLifecycle.setStopped(true);
-                            opModeLifecycle.setStarted(false);
+                            opModeLifecycle.isStopped = true;
+                            opModeLifecycle.isStarted = false;
                             close();
                         }
                         if (state == OpModeState.RUNNING) {
                             System.out.println("RUNNING ");
-                            opModeLifecycle.setStarted(true);
-                            opModeLifecycle.setStopped(false);
+                            opModeLifecycle.isStarted = true;
+                            opModeLifecycle.isStopped = false;
                         }
                         if (state == OpModeState.WAIT_FOR_INIT) {
-                            opModeLifecycle.setStarted(false);
-                            opModeLifecycle.setStopped(true);
+                            opModeLifecycle.isStarted = false;
+                            opModeLifecycle.isStopped = true;
                         }
                         break;
                     case Packet.OPMODE:
