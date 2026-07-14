@@ -15,32 +15,42 @@ The simulator sends live robot data to [AdvantageScope](https://docs.advantagesc
 
 # Usage
 
-1. Download [Advantage Scope](https://github.com/Mechanical-Advantage/AdvantageScope/releases/tag/v26.0.2)
-2. Open AdvantageScope and connect to Simulator -> RLOG Server
+1. To the `repositories` block in `build.dependencies.gradle` add:
+```gradle
+repositories {
+    mavenCentral()
+    google()
+    
+    maven {
+        url = uri("https://www.jitpack.io")
+    }
+    maven {
+        url = uri("https://repo.dairy.foundation/releases")
+    }
+    maven {
+        url = uri("https://repo.dairy.foundation/snapshots")
+    }
+}
+```
+And to the `dependencies` block add:
+```gradle
+dependencies {
+    implementation "org.codeblooded.ftcodesim:Simulator:SNAPSHOT-9cb1d09"
+    testImplementation "junit:junit:4.13.2"
+}
+```
+
+2. Check out the Examples module and run a simulation on your code like [SimulateCodeBloodedDecode](https://github.com/jjophoven/FTCodeSim/blob/master/Examples/src/test/java/SimulateCodeBloodedDecode.java)
+3. Once your code is running and you see the Driver Station Window, open  [Advantage Scope](https://github.com/Mechanical-Advantage/AdvantageScope/releases/tag/v26.0.2) and `Connect to Simulator` -> `RLOG Server`
 
 <img width="400" height=auto alt="image" src="https://github.com/user-attachments/assets/fe478143-4ad4-4e2c-a66f-187386090772" />
-
-3. In the top right corner click the `+` icon and select if you want a line graph, 2d seasonField, or 3d seasonField.
-<img width="380" height="531" alt="image" src="https://github.com/user-attachments/assets/1af1272b-9c27-46ae-a98e-af6cb262e044" />
-
-Make sure you set it to the right seasonField selected.
-
-<img width="516" height="677" alt="image" src="https://github.com/user-attachments/assets/66377cb6-4f30-4afe-8a9c-8be97795b654" />
-
-4. Run `TeamCode/src/test/java/SimulateMecanumBase` and press init and start.
-
-5. Then drag fields you want to graph/visualize
-
-<img width="1162" height="942" alt="image" src="https://github.com/user-attachments/assets/53f83d85-935d-4d3e-95d8-ec1b36ff4a02" />
 
 # Looking for help with
 - Anyone interested in collaborating or working on a similar project
 - Ball physics and collision detection
-- Make advantage scope setup easier by modifying json state
 - Improving the Driver Station UI
 - New features or ideas
-- Packaging/distribution
-- Local controller input support
-- Driver practice support with inhaling, shooting, and scoring
+- Cleaning up packaging/distribution
+- Driver practice support with intaking, shooting, and scoring
 
 ![img.png](keymap.png)

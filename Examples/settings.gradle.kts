@@ -13,6 +13,6 @@ plugins {
 
 includeBuild("../Simulator") {
     dependencySubstitution {
-        substitute(module("org.codeblooded:Simulator")).using(project(":"))
+        substitute(module("org.codeblooded.ftcodesim:Simulator")).using(project(":"))
     }
 }

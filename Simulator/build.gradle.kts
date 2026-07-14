@@ -8,7 +8,7 @@ repositories {
     maven("https://www.jitpack.io")
 }
 
-android.namespace = "org.codeblooded"
+android.namespace = "org.codeblooded.ftcodesim"
 
 dairyPublishing {
     gitDir = file("..")
@@ -33,8 +33,8 @@ ftc {
 dependencies {
     compileOnly("androidx.annotation:annotation-jvm:1.10.0")
 
-    api("org.codeblooded:DriverStationWindow:${dairyPublishing.version}")
-    api("org.codeblooded:MotorModeling:${dairyPublishing.version}")
+    api("org.codeblooded.ftcodesim:DriverStationWindow:${dairyPublishing.version}")
+    api("org.codeblooded.ftcodesim:MotorModeling:${dairyPublishing.version}")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 
@@ -44,7 +44,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "org.codeblooded"
+            groupId = "org.codeblooded.ftcodesim"
             artifactId = "Simulator"
 
             artifact(dairyDoc.dokkaHtmlJar)

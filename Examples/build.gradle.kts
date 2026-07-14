@@ -21,8 +21,8 @@ dependencies {
     implementation("dev.frozenmilk.dairy:CachingHardware:1.0.0")
     testImplementation("junit:junit:4.13.2")
     // no version means it will get the local version
-    implementation("org.codeblooded:Simulator")
-    implementation("org.codeblooded:DriverStationWindow")
+    implementation("org.codeblooded.ftcodesim:Simulator")
+    implementation("org.codeblooded.ftcodesim:DriverStationWindow")
 
     implementation("com.pedropathing:core:2.1.2")
     //implementation("com.pedropathing:telemetry:2.1.2")

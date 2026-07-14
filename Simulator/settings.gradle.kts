@@ -13,11 +13,11 @@ plugins {
 
 includeBuild("../MotorModeling") {
     dependencySubstitution {
-        substitute(module("org.codeblooded:MotorModeling")).using(project(":"))
+        substitute(module("org.codeblooded.ftcodesim:MotorModeling")).using(project(":"))
     }
 }
 includeBuild("../DriverStationWindow") {
     dependencySubstitution {
-        substitute(module("org.codeblooded:DriverStationWindow")).using(project(":"))
+        substitute(module("org.codeblooded.ftcodesim:DriverStationWindow")).using(project(":"))
     }
 }

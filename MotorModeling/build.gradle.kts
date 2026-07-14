@@ -7,7 +7,7 @@ plugins {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "org.codeblooded"
+            groupId = "org.codeblooded.ftcodesim"
             artifactId = "MotorModeling"
 
             artifact(dairyDoc.dokkaJavadocJar)

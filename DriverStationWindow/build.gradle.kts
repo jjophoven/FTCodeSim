@@ -26,14 +26,14 @@ tasks.shadowJar {
 //    archiveClassifier.set("")
 
     manifest {
-        attributes["Main-Class"] = "org.codeblooded.driverstation.DriverStationWindow"
+        attributes["Main-Class"] = "org.codeblooded.ftcodesim.driverstation.DriverStationWindow"
     }
 }
 
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "org.codeblooded"
+            groupId = "org.codeblooded.ftcodesim"
             artifactId = "DriverStationWindow"
 
             artifact(dairyDoc.dokkaJavadocJar)
@@ -47,11 +47,11 @@ publishing {
 }
 
 application {
-    mainClass = "org.codeblooded.driverstation.DriverStationWindow"
+    mainClass = "org.codeblooded.ftcodesim.driverstation.DriverStationWindow"
 }
 
 java {
     manifest {
-        attributes["Main-Class"] = "org.codeblooded.driverstation.DriverStationWindow"
+        attributes["Main-Class"] = "org.codeblooded.ftcodesim.driverstation.DriverStationWindow"
     }
 }
