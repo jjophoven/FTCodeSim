@@ -262,12 +262,12 @@ public class FTCodeSim {
 
         URL resource = Objects.requireNonNull(
                 FTCodeSim.class.getClassLoader()
-                        .getResource("assets/DriverStationWindow.jar"),
-                "Could not find DriverStationWindow.jar in resources"
+                        .getResource("assets/DriverStationWindow-all.jar"),
+                "Could not find DriverStationWindow-all.jar in resources"
         );
 
         Path tempJar = Files.createTempFile(
-                "DriverStationWindow",
+                "DriverStationWindow-all",
                 ".jar"
         );
 
