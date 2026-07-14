@@ -68,6 +68,7 @@ public class OpModeLifecycle {
 
         long logStart = System.nanoTime();
 
+        SimFtcLogger ftcLog = new SimFtcLogger();
         ftcLog.logOncePerLoop(opMode, isStarted, isStopped);
         Logger.periodicBeforeUser();
 
