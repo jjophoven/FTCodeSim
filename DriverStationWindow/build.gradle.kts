@@ -21,9 +21,9 @@ dependencies {
 //}
 
 tasks.shadowJar {
-    archiveBaseName.set("DriverStationWindow")
-    archiveVersion.set("")
-    archiveClassifier.set("")
+    archiveBaseName.set("DriverStationWindow1")
+//    archiveVersion.set("")
+//    archiveClassifier.set("")
 
     manifest {
         attributes["Main-Class"] = "org.codeblooded.driverstation.DriverStationWindow"
