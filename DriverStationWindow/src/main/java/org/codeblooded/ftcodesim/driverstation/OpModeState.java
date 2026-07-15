@@ -1,4 +1,4 @@
-package org.codeblooded.driverstation;
+package org.codeblooded.ftcodesim.driverstation;
 
 
 public enum OpModeState {

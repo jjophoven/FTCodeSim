@@ -1,11 +1,16 @@
-package org.codeblooded.driverstation;
+package org.codeblooded.ftcodesim.driverstation;
 
-import org.codeblooded.driverstation.packets.*;
+import org.codeblooded.ftcodesim.driverstation.packets.*;
+import org.codeblooded.ftcodesim.driverstation.packets.InitOpModePacket;
+import org.codeblooded.ftcodesim.driverstation.packets.OpModesPacket;
+import org.codeblooded.ftcodesim.driverstation.packets.Packet;
+import org.codeblooded.ftcodesim.driverstation.packets.TelemetryPacket;
 
 import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -47,8 +52,10 @@ public class DriverStationConnection {
             SwingUtilities.invokeLater(connectedCallback);
 
             readLoop();
+        } catch (ConnectException e) {
+            System.out.println("Could not connect to server: " + e.getMessage() + "Running unconnected ds");
         } catch (IOException e) {
-            System.out.println("Could not connect to server: " + e.getMessage());
+            System.out.println("Could not connect to server: " + e + e.getMessage());
             close();
         }
     }
@@ -79,6 +86,8 @@ public class DriverStationConnection {
     }
 
     public void send(Packet packet) {
+        if (output == null) return;
+
         try {
             output.writeByte(packet.getPacketType());
             packet.write(output);

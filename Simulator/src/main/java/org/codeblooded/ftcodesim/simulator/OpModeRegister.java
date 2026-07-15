@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.codeblooded.driverstation.packets.InitOpModePacket;
-import org.codeblooded.driverstation.packets.OpModesPacket;
+import org.codeblooded.ftcodesim.driverstation.packets.InitOpModePacket;
+import org.codeblooded.ftcodesim.driverstation.packets.OpModesPacket;
 
 import java.io.DataOutputStream;
 import java.io.File;

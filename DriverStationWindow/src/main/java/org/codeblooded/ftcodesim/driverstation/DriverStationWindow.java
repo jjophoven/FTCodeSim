@@ -1,9 +1,9 @@
-package org.codeblooded.driverstation;
+package org.codeblooded.ftcodesim.driverstation;
 
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
-import org.codeblooded.driverstation.packets.*;
+import org.codeblooded.ftcodesim.driverstation.packets.*;
 
 import javax.swing.*;
 import javax.swing.border.*;

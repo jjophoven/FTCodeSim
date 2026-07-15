@@ -1,4 +1,4 @@
-package org.codeblooded.driverstation.packets;
+package org.codeblooded.ftcodesim.driverstation.packets;
 
 import com.studiohartman.jamepad.ControllerState;
 
