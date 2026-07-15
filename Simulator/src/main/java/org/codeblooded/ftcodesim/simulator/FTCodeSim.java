@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.codeblooded.driverstation.OpModeState;
 import org.codeblooded.driverstation.packets.*;
-import org.codeblooded.ftcodesim.ascope.AscopeViewEditor;
+import org.codeblooded.ftcodesim.ascope.AdvantageScopeRunner;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
@@ -49,6 +49,8 @@ public class FTCodeSim {
     SimTelemetry telemetry;
     volatile OpModeLifecycle opModeLifecycle;
 
+    AdvantageScopeRunner advantageScope;
+
     // TODO create a way to select from multiple "simulated" robots
     @RequiresApi(api = Build.VERSION_CODES.O)
     public FTCodeSim(SimConfig config) throws IOException {
@@ -60,6 +62,12 @@ public class FTCodeSim {
 
         startServer();
         acceptClient();
+
+        advantageScope = new AdvantageScopeRunner(SeasonField.DECODE);
+//        advantageScope.addSource("RealOutputs/Artifacts/green0 ftc coords (m)", SourceType.GREEN_ARTIFACT);
+
+        advantageScope.saveConfig();
+
         new Thread(() -> {
             while (windowIsRunning()) {
                 readPackets();
@@ -70,12 +78,6 @@ public class FTCodeSim {
                 }
             }
         }, "DS INPUT").start();
-
-
-       AscopeViewEditor editor = new AscopeViewEditor(SeasonField.DECODE);
-       editor.addSource("RealOutputs/Artifacts/green0 ftc coords (m)", SourceType.GREEN_ARTIFACT);
-
-        editor.save();
     }
 
     public void run() throws InterruptedException {
@@ -91,7 +93,7 @@ public class FTCodeSim {
     }
 
     public boolean windowIsRunning() {
-        return driverStationWindow.isAlive();
+        return driverStationWindow.isAlive() && advantageScope.isOpen();
     }
 
     public void startServer() throws IOException {

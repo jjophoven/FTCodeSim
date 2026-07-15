@@ -6,22 +6,118 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import org.codeblooded.ftcodesim.physics.SeasonField;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
-public class AscopeViewEditor extends JsonEditor {
+public class AdvantageScopeRunner extends JsonEditor {
     ArrayNode sources;
+    Process window;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public AscopeViewEditor(SeasonField seasonField) {
+    public AdvantageScopeRunner(SeasonField seasonField) {
         super(getStateFile());
         sources = fieldView3D(seasonField);
 
-        copyFolder(
-                new File("../Simulator/src/main/resources/assets/Robot_CodeBloodedDecode").toPath(),
-                new File(getAdvantageScopeFolder(), "userAssets").toPath());
+        URL robotModelsUrl = Objects.requireNonNull(
+                getClass().getClassLoader().getResource("assets/robot-models"));
+
+        Path robotModels = null;
+        try {
+            robotModels = Paths.get(robotModelsUrl.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        Path userAssets = new File(getAdvantageScopeFolder(), "userAssets").toPath();
+
+        File[] folders = robotModels.toFile().listFiles(File::isDirectory);
+        if (folders != null) {
+            for (File folder : folders) {
+                copyFolder(folder.toPath(), userAssets);
+            }
+        }
+
+        JsonEditor prefsEditor = new JsonEditor(new File(getAdvantageScopeFolder(), "prefs.json"));
+        prefsEditor.root.put("liveMode", "rlog");
+
+        if (isAdvantageScopeRunning()) {
+            return;
+        }
+
+        File exe = new File(
+                System.getenv("LOCALAPPDATA"),
+                "Programs/advantagescope/AdvantageScope.exe"
+        );
+
+        try {
+            window = new ProcessBuilder(exe.getAbsolutePath()).start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Process getAdvantageScopeProcess() {
+        try {
+            Process process = new ProcessBuilder(
+                    "pgrep",
+                    "-f",
+                    "AdvantageScope"
+            ).start();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+
+                if (reader.readLine() != null) {
+                    return process;
+                }
+            }
+
+        } catch (IOException ignored) {
+        }
+
+        return null;
+    }
+
+    private static boolean isAdvantageScopeRunning() {
+        String os = System.getProperty("os.name").toLowerCase();
+
+        try {
+            Process process;
+
+            if (os.contains("win")) {
+                process = new ProcessBuilder("tasklist").start();
+            } else if (os.contains("mac")) {
+                process = new ProcessBuilder("pgrep", "-f", "AdvantageScope").start();
+            } else {
+                process = new ProcessBuilder("pgrep", "-f", "AdvantageScope").start();
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.toLowerCase().contains("advantagescope")) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (IOException ignored) {
+        }
+
+        return false;
+    }
+
+    public boolean isOpen() {
+        return window == null || window.isAlive();
     }
 
     public ArrayNode fieldView3D(SeasonField seasonField) {
@@ -65,8 +161,8 @@ public class AscopeViewEditor extends JsonEditor {
             SourceType sourceType
     ) {
         for (JsonNode source : sources) {
-            if(
-                    isEqualTo(source, "logKey", key)
+            if(isEqualTo(source, "logKey", key)
+                    && isEqualTo(source, "logType", sourceType.logType)
             ) {
                 return;
             }
@@ -91,14 +187,14 @@ public class AscopeViewEditor extends JsonEditor {
         File folder = getAdvantageScopeFolder();
 
         if (!folder.exists() || !folder.isDirectory()) {
-            return null;
+            throw new RuntimeException("Could not find AdvantageScope");
         }
 
         File[] files = folder.listFiles((dir, name) ->
                 name.startsWith("state-") && name.endsWith(".json"));
 
         if (files == null || files.length == 0) {
-            return null;
+            throw new RuntimeException("No AdvantageScope state file found");
         }
 
         return files[0];

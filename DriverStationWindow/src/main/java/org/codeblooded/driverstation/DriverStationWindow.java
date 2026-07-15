@@ -63,6 +63,7 @@ public class DriverStationWindow extends JFrame {
                     System.exit(0);
                 }
         );
+        // TODO invoke the key press ctrl+shift+K using awt.Robot to automatically connect to ascope RLOG server
     }
 
     private void opModeSelection(OpModesPacket opmodeList) {

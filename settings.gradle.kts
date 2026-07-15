@@ -15,3 +15,14 @@ includeBuild("Examples")
 includeBuild("Simulator")
 includeBuild("DriverStationWindow")
 includeBuild("MotorModeling")
+
+//rootProject.name = "FTCodeSim"
+//
+//include(
+//    ":Simulator",
+//    ":FakeHardware",
+//    ":DriverStationWindow",
+//    ":MotorModeling",
+//    ":TeamCode",
+//    ":FtcRobotController"
+//)

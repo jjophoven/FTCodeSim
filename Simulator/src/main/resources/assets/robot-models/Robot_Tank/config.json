@@ -1,0 +1,11 @@
+{
+  "name": "Tank",
+  "isFTC": true, 
+  "disableSimplification": true,
+  "rotations": [
+    {"axis": "z", "degrees": -90}
+  ],
+  "position": [-0.205, 0, 0.051], 
+  "cameras": [],
+  "components": []
+}

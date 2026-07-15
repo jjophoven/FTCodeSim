@@ -48,7 +48,7 @@ public class JsonEditor {
        return get(root, masterKey);
     }
 
-    public void save() {
+    public void saveConfig() {
         try {
             mapper.writerWithDefaultPrettyPrinter()
                     .writeValue(
