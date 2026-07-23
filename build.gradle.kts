@@ -2,7 +2,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 run {
-    val runDriverStationWindowReference = gradle.includedBuild("DriverStationWindow").task(":run")
+    val runDriverStationWindowReference = gradle.includedBuild("driverstation").task(":run")
 
     tasks.register("runDriverStationWindow") {
         description = "Start the driver station window"
@@ -15,10 +15,10 @@ run {
         .includedBuild("MotorModeling")//
         .task(":publishToMavenLocal")
     val publishDriverStationWindow = gradle//
-        .includedBuild("DriverStationWindow")//
+        .includedBuild("driverstation")//
         .task(":publishToMavenLocal")
     val publishSimulator = gradle//
-        .includedBuild("Simulator")//
+        .includedBuild("ftcodesim")//
         .task(":publishToMavenLocal")
 
     tasks.register("publishLocal") {
@@ -34,10 +34,10 @@ run {
         .includedBuild("MotorModeling")//
         .task(":publishReleasePublicationToDairyRepository")
     val publishDriverStationWindow = gradle//
-        .includedBuild("DriverStationWindow")//
+        .includedBuild("driverstation")//
         .task(":publishReleasePublicationToDairyRepository")
     val publishSimulator = gradle//
-        .includedBuild("Simulator")//
+        .includedBuild("ftcodesim")//
         .task(":publishReleasePublicationToDairyRepository")
 
     tasks.register("publishDairy") {

@@ -1,11 +1,11 @@
+import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
+import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedTank;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimTankConfig;
-import org.codeblooded.ftcodesim.physics.RobotGeometry;
-import org.codeblooded.ftcodesim.physics.SeasonField;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
 import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.simulator.FTCodeSim;
@@ -28,7 +28,7 @@ public class SimulateTank {
         config.maxVelocity = 70;
         config.naturalDeceleration = 40;
         config.robotGeometry = new RobotGeometry(18, 18, 0, 0);
-        config.robotModel = SourceType.ROBOT_TANK; // TODO add robot model before opening ascope
+        config.robotModel = SourceType.ROBOT_TANK;
 
         SimulatedDrivetrain tank = new SimulatedTank(config);
 

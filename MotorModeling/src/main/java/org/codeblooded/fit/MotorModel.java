@@ -40,6 +40,8 @@ public class MotorModel {
             }
         }
 
+        System.out.println("accelLength: " + accels.length);
+
         Vector b = new Vector(accels);
         QRDecomposition qr = new QRDecomposition(A);
         Vector theta = qr.solve(b);

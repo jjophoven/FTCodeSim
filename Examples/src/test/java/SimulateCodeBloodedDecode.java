@@ -1,13 +1,13 @@
+import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
+import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimMecanumConfig;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum;
-import org.codeblooded.ftcodesim.physics.SeasonField;
 import org.codeblooded.ftcodesim.simulator.FTCodeSim;
-import org.codeblooded.ftcodesim.physics.RobotGeometry;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
 import org.junit.Test;
 

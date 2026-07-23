@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import android.app.Activity;
+import android.widget.TextView;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Alliance;
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.opmode.base.TeleOpMode;
 import org.psilynx.psikit.core.Logger;
 
 @TeleOp
 public class FieldCentricTeleop extends TeleOpMode {
     double lockedHeading = 0;
+
     @Override
     public void loop() {
         super.loop();
@@ -15,7 +19,7 @@ public class FieldCentricTeleop extends TeleOpMode {
         double heading = localizer.getPose().getHeading();
 
         Logger.recordOutput("heading", heading);
-        Logger.recordOutput("headingVel", localizer.getVelocity().getHeading());
+        Logger.recordOutput("headingVelocity", localizer.getVelocity().getHeading());
 
         double relativeHeading = heading;
         if (alliance == Alliance.BLUE) {
@@ -33,8 +37,8 @@ public class FieldCentricTeleop extends TeleOpMode {
             turn = angleWrap(lockedHeading - heading) * 1 - localizer.getVelocity().getHeading() * 0.1;
         }
 
-        Logger.recordOutput("lockedHeading2", lockedHeading);
-        Logger.recordOutput("turn2", turn);
+        Logger.recordOutput("lockedHeading", lockedHeading);
+        Logger.recordOutput("turn", turn);
 
         drivetrain.driveFieldCentric(
                 relativeHeading,

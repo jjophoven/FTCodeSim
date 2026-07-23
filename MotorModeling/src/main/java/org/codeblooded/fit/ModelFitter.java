@@ -7,9 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ModelFitter {
     private static class DataSet {
@@ -165,9 +163,94 @@ public class ModelFitter {
         }
     }
 
+//    private static DataSet loadAndFilterAndSmooth(String path, int windowSize, int polyDegree) throws FileNotFoundException {
+//        File file = new File(path);
+//        if (!file.exists()) throw new FileNotFoundException("Could not find file: " + file.getAbsolutePath());
+//
+//        List<double[]> dataRows = parseCSVFile(file);
+//
+//        DataSet data = new DataSet();
+//        data.rawVels = extractColumn(dataRows, 0);
+//        data.batteryVoltages = extractColumn(dataRows, 1);
+//        data.duties = extractColumn(dataRows, 2);
+//        data.loopTimes = extractColumn(dataRows, 3);
+//        data.times = extractColumn(dataRows, 4);
+//        data.applied = extractColumn(dataRows, 5);
+//
+//        LocalPolynomialFilter filter = new LocalPolynomialFilter(windowSize, polyDegree);
+//        LocalPolynomialFilter.Result result = filter.filter(data.rawVels, data.times);
+//
+//        data.vels = result.velocity;
+//        data.accels = result.acceleration;
+//
+//        return data;
+//    }
+
+//    private static DataSet loadAndFilterAndSmooth(String path, int windowSize, int polyDegree) throws FileNotFoundException {
+//        File file = new File(path);
+//        if (!file.exists()) throw new FileNotFoundException("Could not find file: " + file.getAbsolutePath());
+//
+//        List<double[]> dataRows = parseCSVFile(file);
+//
+//        DataSet data = new DataSet();
+//        data.rawVels = extractColumn(dataRows, 0);
+//        data.batteryVoltages = extractColumn(dataRows, 1);
+//        data.duties = extractColumn(dataRows, 2);
+//        data.loopTimes = extractColumn(dataRows, 3);
+//        data.times = extractColumn(dataRows, 4);
+//        data.applied = extractColumn(dataRows, 5);
+//
+//        data.vels = new double[data.rawVels.length];
+//        data.accels = new double[data.rawVels.length];
+//
+//        final double voltageTolerance = 1.0;
+//
+//        int start = 0;
+//        while (start < data.rawVels.length) {
+//            double referenceVoltage = data.applied[start];
+//            int end = start + 1;
+//
+//            while (end < data.rawVels.length &&
+//                    Math.abs(data.applied[end] - referenceVoltage) <= voltageTolerance) {
+//                end++;
+//            }
+//
+//            int length = end - start;
+//
+//            if (length >= windowSize) {
+//                double[] vels = Arrays.copyOfRange(data.rawVels, start, end);
+//                double[] times = Arrays.copyOfRange(data.times, start, end);
+//
+//                LocalPolynomialFilter filter = new LocalPolynomialFilter(windowSize, polyDegree);
+//                LocalPolynomialFilter.Result result = filter.filter(vels, times);
+//
+//                System.arraycopy(result.velocity, 0, data.vels, start, length);
+//                System.arraycopy(result.acceleration, 0, data.accels, start, length);
+//            } else {
+//                // Segment too short to smooth
+//                System.arraycopy(data.rawVels, start, data.vels, start, length);
+//
+//                for (int i = start; i < end; i++) {
+//                    if (i == start || i == data.rawVels.length - 1) {
+//                        data.accels[i] = 0;
+//                    } else {
+//                        data.accels[i] = (data.rawVels[i + 1] - data.rawVels[i - 1])
+//                                / (data.times[i + 1] - data.times[i - 1]);
+//                    }
+//                }
+//            }
+//
+//            start = end;
+//        }
+//
+//        return data;
+//    }
+
     private static DataSet loadAndFilterAndSmooth(String path, int windowSize, int polyDegree) throws FileNotFoundException {
         File file = new File(path);
-        if (!file.exists()) throw new FileNotFoundException("Could not find file: " + file.getAbsolutePath());
+        if (!file.exists()) {
+            throw new FileNotFoundException("Could not find file: " + file.getAbsolutePath());
+        }
 
         List<double[]> dataRows = parseCSVFile(file);
 
@@ -179,14 +262,104 @@ public class ModelFitter {
         data.times = extractColumn(dataRows, 4);
         data.applied = extractColumn(dataRows, 5);
 
-        LocalPolynomialFilter filter = new LocalPolynomialFilter(windowSize, polyDegree);
-        LocalPolynomialFilter.Result result = filter.filter(data.rawVels, data.times);
+        data.vels = new double[data.rawVels.length];
+        data.accels = new double[data.rawVels.length];
 
-        data.vels = result.velocity;
-        data.accels = result.acceleration;
+        final double VOLTAGE_THRESHOLD = 1.0;
+
+        int start = 0;
+        while (start < data.rawVels.length) {
+
+            double referenceVoltage = data.applied[start];
+            int end = start + 1;
+
+            while (end < data.rawVels.length &&
+                    Math.abs(data.applied[end] - referenceVoltage) <= VOLTAGE_THRESHOLD) {
+                end++;
+            }
+
+            int length = end - start;
+
+            double[] segVel = Arrays.copyOfRange(data.rawVels, start, end);
+            double[] segTime = Arrays.copyOfRange(data.times, start, end);
+
+            // Window cannot exceed segment length and must be odd.
+            int segmentWindow = Math.min(windowSize, length);
+            if ((segmentWindow & 1) == 0) {
+                segmentWindow--;
+            }
+
+            if (segmentWindow >= polyDegree + 2) {
+                LocalPolynomialFilter filter =
+                        new LocalPolynomialFilter(segmentWindow, polyDegree);
+
+                LocalPolynomialFilter.Result result =
+                        filter.filter(segVel, segTime);
+
+                System.arraycopy(result.velocity, 0, data.vels, start, length);
+                System.arraycopy(result.acceleration, 0, data.accels, start, length);
+            } else {
+                // Segment too short to smooth.
+                System.arraycopy(segVel, 0, data.vels, start, length);
+
+                Arrays.fill(data.accels, start, end, 0.0);
+                for (int i = start + 1; i < end - 1; i++) {
+                    double dv = data.rawVels[i + 1] - data.rawVels[i - 1];
+                    double dt = data.times[i + 1] - data.times[i - 1];
+                    if (dt != 0.0) {
+                        data.accels[i] = dv / dt;
+                    }
+                }
+            }
+
+            start = end;
+        }
 
         return data;
     }
+
+//    private static List<double[]> parseCSVFile(File file) throws FileNotFoundException {
+//        List<double[]> rows = new ArrayList<>();
+//
+//        try (Scanner scanner = new Scanner(file)) {
+//            List<String> lines = new ArrayList<>();
+//            while (scanner.hasNextLine()) lines.add(scanner.nextLine());
+//            if (lines.size() < 2) throw new IllegalArgumentException("CSV contains no data rows: " + file.getPath());
+//
+//            double firstTimestampMs = Double.NaN;
+//
+//            for (int i = 1; i < lines.size(); i++) {
+//                String[] row = lines.get(i).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+//
+//                double timestampS = parse(row, 0);
+////                double batteryVoltage = parse(row, 10);
+////                double dutyCycle = parse(row, 12);
+////                double loopTimeMs = parse(row, 13);
+////                double velocity = parse(row, 18);
+//
+//                double batteryVoltage = parse(row, 9);
+//                double dutyCycle      = parse(row, 11);
+//                double loopTimeMs     = parse(row, 12);
+//                double velocity       = parse(row, 17); // velocity radians per second
+//
+//                if (Double.isNaN(firstTimestampMs) && !Double.isNaN(timestampS))
+//                    firstTimestampMs = timestampS;
+//
+//                velocity = orDefault(velocity, 0.0);
+//
+//                if (Math.abs(velocity) < 0.5) continue; // FIXME was 0.2
+//
+//                double battery = orDefault(batteryVoltage, 13.0);
+//                double duty = orDefault(dutyCycle, 0.0);
+//                double loop = orDefault(loopTimeMs, 10.0);
+//                double time = orDefault(timestampS, 0.0) - (Double.isNaN(firstTimestampMs) ? 0.0 : firstTimestampMs);
+//
+//                rows.add(new double[]{velocity, battery, duty, loop, time, duty * battery});
+//            }
+//        }
+//
+//        return rows;
+//    }
 
     private static List<double[]> parseCSVFile(File file) throws FileNotFoundException {
         List<double[]> rows = new ArrayList<>();
@@ -194,36 +367,71 @@ public class ModelFitter {
         try (Scanner scanner = new Scanner(file)) {
             List<String> lines = new ArrayList<>();
             while (scanner.hasNextLine()) lines.add(scanner.nextLine());
-            if (lines.size() < 2) throw new IllegalArgumentException("CSV contains no data rows: " + file.getPath());
+
+            if (lines.size() < 2)
+                throw new IllegalArgumentException("CSV contains no data rows: " + file.getPath());
+
+            // Parse header
+            String[] headers = lines.get(0).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+            Map<String, Integer> columns = new HashMap<>();
+            for (int i = 0; i < headers.length; i++) {
+                columns.put(headers[i].trim(), i);
+            }
+
+            int timestampCol = getColumn(columns, "Timestamp");
+            int batteryCol = getColumn(columns, "battery voltage");
+            int dutyCol = getColumn(columns, "duty cycle");
+            int loopTimeCol = getColumn(columns, "loop time ms");
+            int velocityCol = getColumn(columns, "velocity radians per second");
 
             double firstTimestampMs = Double.NaN;
 
             for (int i = 1; i < lines.size(); i++) {
                 String[] row = lines.get(i).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-                double timestampMs = parse(row, 0);
-                double batteryVoltage = parse(row, 10);
-                double dutyCycle = parse(row, 12);
-                double loopTimeMs = parse(row, 13);
-                double velocity = parse(row, 18);
+                double timestampS = parse(row, timestampCol);
+                double batteryVoltage = parse(row, batteryCol);
+                double dutyCycle = parse(row, dutyCol);
+                double loopTimeMs = parse(row, loopTimeCol);
+                double velocity = parse(row, velocityCol);
 
-                if (Double.isNaN(firstTimestampMs) && !Double.isNaN(timestampMs))
-                    firstTimestampMs = timestampMs;
+                if (Double.isNaN(timestampS)
+                        || Double.isNaN(batteryVoltage)
+                        || Double.isNaN(dutyCycle)
+                        || Double.isNaN(loopTimeMs)
+                        || Double.isNaN(velocity)) {
+                    continue;
+                }
 
-                velocity = orDefault(velocity, 0.0);
+                if (Double.isNaN(firstTimestampMs))
+                    firstTimestampMs = timestampS;
 
-                if (Math.abs(velocity) < 0.2) continue;
+                if (Math.abs(velocity) < .5)
+                    continue;
 
-                double battery = orDefault(batteryVoltage, 13.0);
-                double duty = orDefault(dutyCycle, 0.0);
-                double loop = orDefault(loopTimeMs, 10.0);
-                double time = orDefault(timestampMs, 0.0) - (Double.isNaN(firstTimestampMs) ? 0.0 : firstTimestampMs);
+                double time = timestampS - firstTimestampMs;
 
-                rows.add(new double[]{velocity, battery, duty, loop, time, duty * battery});
+                rows.add(new double[]{
+                        velocity,
+                        batteryVoltage,
+                        dutyCycle,
+                        loopTimeMs,
+                        time,
+                        dutyCycle * batteryVoltage
+                });
             }
         }
 
         return rows;
+    }
+
+    private static int getColumn(Map<String, Integer> columns, String name) {
+        Integer index = columns.get(name);
+        if (index == null) {
+            throw new IllegalArgumentException("Missing CSV column: " + name);
+        }
+        return index;
     }
 
     private static double[] extractColumn(List<double[]> rows, int column) {

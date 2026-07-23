@@ -12,8 +12,8 @@ plugins {
 }
 
 includeBuild("Examples")
-includeBuild("Simulator")
-includeBuild("DriverStationWindow")
+includeBuild("ftcodesim")
+includeBuild("driverstation")
 includeBuild("MotorModeling")
 
 //rootProject.name = "FTCodeSim"
@@ -26,3 +26,4 @@ includeBuild("MotorModeling")
 //    ":TeamCode",
 //    ":FtcRobotController"
 //)
+includeBuild("advantagescope")
