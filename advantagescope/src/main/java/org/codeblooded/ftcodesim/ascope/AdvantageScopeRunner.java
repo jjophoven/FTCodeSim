@@ -130,7 +130,7 @@ public class AdvantageScopeRunner extends JsonEditor {
     public ArrayNode fieldView3D(SeasonField seasonField) {
         ObjectNode tabs = (ObjectNode) get("hubs/0/state/tabs");
 
-        tabs.put("selected", 3);
+        tabs.put("selected", 1);
 
         ArrayNode tabArray =
                 (ArrayNode) tabs.get("tabs");
@@ -158,7 +158,7 @@ public class AdvantageScopeRunner extends JsonEditor {
         tab.set("controller", mapper.createObjectNode().put("game", seasonField.ascopeName).set("sources", mapper.createArrayNode()));
         //tab.set("renderer", mapper.createObjectNode());
         tab.put("controlsHeight", 100);
-        tabArray.add(tab);
+        tabArray.insert(1, tab);
 
         return (ArrayNode) get(tab, "controller/sources");
     }
