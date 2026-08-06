@@ -30,7 +30,9 @@ public class SimulateCodeBloodedDecode {
         mecanumConfig.staticFriction = 45;
         mecanumConfig.maxAcceleration = 150;
         mecanumConfig.maxVelocity = 75;
-        mecanumConfig.naturalDeceleration = 40;
+        mecanumConfig.naturalDeceleration = 33;
+        mecanumConfig.quadraticBraking = 0.0014846306;
+        mecanumConfig.linearBraking = 0.09533276;
         mecanumConfig.strafeEfficiency = 0.80;
         mecanumConfig.robotGeometry = new RobotGeometry(12, 18, 2, 0);
         mecanumConfig.robotModel = SourceType.ROBOT_CODE_BLOODED_DECODE;

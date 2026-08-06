@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import static androidx.core.math.MathUtils.clamp;
+
 public class CachingMotor {
     private final DcMotorEx motor;
 
@@ -20,9 +22,12 @@ public class CachingMotor {
     public void setPower(double power) {
         if (Double.isNaN(power) || Double.isInfinite(power)) return;
 
-        double desired = Math.max(-1.0, Math.min(1.0, power));
+        double desired = clamp(power, -1, 1);
 
-        if (Math.abs(this.power - desired) >= powerThreshold) {
+        boolean exceedsThreshold = Math.abs(this.power - desired) >= powerThreshold;
+        boolean switchesSigns = Math.signum(this.power) != Math.signum(desired);
+
+        if (exceedsThreshold || switchesSigns) {
             this.power = desired;
             motor.setPower(desired);
         }

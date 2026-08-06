@@ -11,6 +11,9 @@ public abstract class SimDrivetrainConfig {
     public double staticVelocityRegion;
     public double staticFriction;
     public double nominalVoltage = 13;
+    public double quadraticBraking;
+    public double linearBraking;
+
     public RobotGeometry robotGeometry;
     public SourceType robotModel;
 }
