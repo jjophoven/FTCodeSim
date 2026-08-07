@@ -6,9 +6,15 @@ import org.codeblooded.ftcodesim.simulator.FTCodeSim;
 
 public class SimTelemetry implements Telemetry {
     private final FTCodeSim driverStation;
+    private boolean transmit;
+
+    public SimTelemetry(FTCodeSim driverStation, boolean transmit) {
+        this.driverStation = driverStation;
+        this.transmit = transmit;
+    }
 
     public SimTelemetry(FTCodeSim driverStation) {
-        this.driverStation = driverStation;
+        this(driverStation, true);
     }
 
     @Override
@@ -73,7 +79,10 @@ public class SimTelemetry implements Telemetry {
         if (toBeDisplayed.isEmpty()) {
             return false;
         }
-        driverStation.sendTelemetry(toBeDisplayed);
+        if (transmit) {
+            driverStation.sendTelemetry(toBeDisplayed);
+        }
+        // TODO else PsiKitLogger.record(...)
         toBeDisplayed = "";
         return true;
     }

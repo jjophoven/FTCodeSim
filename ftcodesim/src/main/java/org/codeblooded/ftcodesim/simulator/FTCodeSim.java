@@ -2,6 +2,8 @@ package org.codeblooded.ftcodesim.simulator;
 
 import android.os.Build;
 import androidx.annotation.RequiresApi;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.codeblooded.ftcodesim.driverstation.OpModeState;
 import org.codeblooded.ftcodesim.ascope.AdvantageScopeRunner;
@@ -13,6 +15,8 @@ import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
 
+import java.lang.reflect.Field;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,12 +27,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import static org.mockito.Mockito.*;
 
 // TODO simulate rolling and colliding game pieces,
 // TODO intake and shoot game pieces (low priority)
-// TODO modify ascope state for less user setup
-// add default code blooded robot models?
-// automatically download and open ascope on run?
 public class FTCodeSim {
     private static final int PORT = 8080;
 
@@ -52,6 +54,24 @@ public class FTCodeSim {
 
     AdvantageScopeRunner advantageScope;
 
+    private void installSimDashboard() {
+        FtcDashboard dashboard = mock(FtcDashboard.class);
+        when(dashboard.getTelemetry()).thenReturn(new SimTelemetry(this, false));
+
+        Field field = null;
+        try {
+            field = FtcDashboard.class.getDeclaredField("instance");
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        field.setAccessible(true);
+        try {
+            field.set(null, dashboard);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // TODO create a way to select from multiple "simulated" robots
     @RequiresApi(api = Build.VERSION_CODES.O)
     public FTCodeSim(SimConfig config) throws IOException {
@@ -60,6 +80,7 @@ public class FTCodeSim {
         this.config = config;
         this.simHardwareMap = this.config.simHardwareMap;
         this.telemetry = new SimTelemetry(this);
+        installSimDashboard();
 
         startServer();
         acceptClient();

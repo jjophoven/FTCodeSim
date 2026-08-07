@@ -27,4 +27,5 @@ dependencies {
     implementation("com.pedropathing:core:2.1.2")
     //implementation("com.pedropathing:telemetry:2.1.2")
     implementation("com.pedropathing:ftc:2.1.2")
+    implementation("com.acmerobotics.dashboard:dashboard:0.6.0")
 }

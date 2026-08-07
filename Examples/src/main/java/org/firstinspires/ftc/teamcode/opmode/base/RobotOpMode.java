@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.base;
 
 import android.annotation.SuppressLint;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
@@ -58,6 +60,8 @@ public abstract class RobotOpMode extends OpMode {
         localizer.setPose(new Pose(141.5/2, 141.5/2, 0));
 
         drivetrain = new Mecanum(hardwareMap);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Logger.recordMetadata("Init/Teleop", "UtilOpMode");
     }
