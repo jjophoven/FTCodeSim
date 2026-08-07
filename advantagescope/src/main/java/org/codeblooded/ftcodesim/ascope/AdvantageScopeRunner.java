@@ -11,9 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.Collections;
 import java.util.Objects;
 
 public class AdvantageScopeRunner extends JsonEditor {
@@ -30,19 +29,12 @@ public class AdvantageScopeRunner extends JsonEditor {
         URL robotModelsUrl = Objects.requireNonNull(
                 getClass().getClassLoader().getResource("assets/robot-models"));
 
-        Path robotModels = null;
-        try {
-            robotModels = Paths.get(robotModelsUrl.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
         Path userAssets = new File(getAdvantageScopeFolder(), "userAssets").toPath();
 
-        File[] folders = robotModels.toFile().listFiles(File::isDirectory);
-        if (folders != null) {
-            for (File folder : folders) {
-                copyFolder(folder.toPath(), userAssets);
-            }
+        try {
+            copyRobotModels(robotModelsUrl, userAssets);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
         }
 
         JsonEditor prefsEditor = new JsonEditor(new File(getAdvantageScopeFolder(), "prefs.json"));
@@ -67,6 +59,31 @@ public class AdvantageScopeRunner extends JsonEditor {
             window = new ProcessBuilder(exe.getAbsolutePath()).start();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void copyRobotModels(URL robotModelsUrl, Path userAssets) throws IOException, URISyntaxException {
+        if ("jar".equals(robotModelsUrl.getProtocol())) {
+            String uri = robotModelsUrl.toURI().toString();
+            String[] parts = uri.split("!", 2);
+
+            try (FileSystem fileSystem = FileSystems.newFileSystem(
+                    java.net.URI.create(parts[0]),
+                    Collections.emptyMap()
+            )) {
+                copyRobotModelFolders(fileSystem.getPath(parts[1]), userAssets);
+            }
+        } else {
+            copyRobotModelFolders(Paths.get(robotModelsUrl.toURI()), userAssets);
+        }
+    }
+
+    private static void copyRobotModelFolders(Path robotModels, Path userAssets) throws IOException {
+        Files.createDirectories(userAssets);
+
+        try (java.util.stream.Stream<Path> paths = Files.list(robotModels)) {
+            paths.filter(Files::isDirectory)
+                    .forEach(path -> copyFolder(path, userAssets));
         }
     }
 
@@ -237,7 +254,12 @@ public class AdvantageScopeRunner extends JsonEditor {
     }
 
     public static void copyFolder(Path source, Path destination) {
-        Path targetRoot = destination.resolve(source.getFileName());
+        Path sourceFileName = source.getFileName();
+        if (sourceFileName == null) {
+            throw new IllegalArgumentException("Source path has no file name: " + source);
+        }
+
+        Path targetRoot = destination.resolve(sourceFileName.toString());
 
         // Folder already exists, do nothing
         if (Files.exists(targetRoot)) {
@@ -249,11 +271,17 @@ public class AdvantageScopeRunner extends JsonEditor {
         try {
             Files.walk(source).forEach(path -> {
                 try {
-                    Path target = targetRoot.resolve(source.relativize(path));
+                    Path relativePath = source.relativize(path);
+                    Path target = targetRoot.resolve(relativePath.toString());
 
                     if (Files.isDirectory(path)) {
                         Files.createDirectories(target);
                     } else {
+                        Path parent = target.getParent();
+                        if (parent != null) {
+                            Files.createDirectories(parent);
+                        }
+
                         Files.copy(path, target);
                     }
                 } catch (IOException e) {
