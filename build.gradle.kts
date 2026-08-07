@@ -23,8 +23,8 @@ run {
 
     tasks.register("publishLocal") {
         description = "Publish all libraries in the monorepo to maven local"
-        dependsOn(publishMotorModeling)
-        dependsOn(publishDriverStationWindow)
+        //dependsOn(publishMotorModeling)
+       //dependsOn(publishDriverStationWindow)
         dependsOn(publishSimulator)
     }
 }
@@ -42,8 +42,8 @@ run {
 
     tasks.register("publishDairy") {
         description = "Publish all libraries in the monorepo to repo.dairy.foundation"
-        dependsOn(publishMotorModeling)
-        dependsOn(publishDriverStationWindow)
+        //dependsOn(publishMotorModeling)
+        // dependsOn(publishDriverStationWindow)
         dependsOn(publishSimulator)
     }
 }
