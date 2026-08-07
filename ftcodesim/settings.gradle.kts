@@ -16,11 +16,11 @@ includeBuild("../MotorModeling") {
         substitute(module("org.codeblooded.ftcodesim:MotorModeling")).using(project(":"))
     }
 }
-//includeBuild("../driverstation") {
-//    dependencySubstitution {
-//        substitute(module("org.codeblooded.ftcodesim:driverstation")).using(project(":"))
-//    }
-//}
+includeBuild("../driverstation") {
+    dependencySubstitution {
+        substitute(module("org.codeblooded.ftcodesim:driverstation")).using(project(":"))
+    }
+}
 includeBuild("../advantagescope") {
     dependencySubstitution {
         substitute(module("org.codeblooded.ftcodesim:advantagescope")).using(project(":"))

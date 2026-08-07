@@ -33,7 +33,7 @@ ftc {
 dependencies {
     compileOnly("androidx.annotation:annotation-jvm:1.10.0")
 
-    //api("org.codeblooded.ftcodesim:driverstation:${dairyPublishing.version}")
+    api("org.codeblooded.ftcodesim:driverstation:${dairyPublishing.version}")
     api("org.codeblooded.ftcodesim:advantagescope:${dairyPublishing.version}")
     api("org.codeblooded.ftcodesim:MotorModeling:${dairyPublishing.version}")
 
