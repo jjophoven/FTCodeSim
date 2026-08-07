@@ -34,7 +34,7 @@ publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "org.codeblooded.ftcodesim"
-            artifactId = "DriverStationWindow"
+            artifactId = "driverstation"
 
             artifact(dairyDoc.dokkaJavadocJar)
             artifact(dairyDoc.dokkaHtmlJar)
