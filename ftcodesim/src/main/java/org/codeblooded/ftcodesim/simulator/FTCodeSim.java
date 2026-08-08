@@ -14,9 +14,8 @@ import org.codeblooded.ftcodesim.driverstation.packets.Packet;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
-import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
-import org.objenesis.ObjenesisStd;
+import org.objenesis.instantiator.ObjectInstantiator;
+import org.objenesis.instantiator.sun.UnsafeFactoryInstantiator;
 
 import java.lang.reflect.Field;
 
@@ -30,7 +29,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import static org.mockito.Mockito.*;
 
 // TODO simulate rolling and colliding game pieces,
 // TODO intake and shoot game pieces (low priority)
@@ -57,50 +55,22 @@ public class FTCodeSim {
 
     AdvantageScopeRunner advantageScope;
 
-//    private void installSimDashboard() {
-//        try (MockedConstruction<FtcDashboard> mocked =
-//                     Mockito.mockConstruction(FtcDashboard.class, (mock, context) -> {
-//                         when(mock.getTelemetry())
-//                                 .thenReturn(new SimTelemetry(this, false));
-//                     })) {
-//
-//            // run code that creates FtcDashboard
-//        }
-////
-////        FtcDashboard dashboard = mock(FtcDashboard.class);
-////        when(dashboard.getTelemetry()).thenReturn(new SimTelemetry(this, false));
-//
-//        Field field = null;
-//        try {
-//            field = FtcDashboard.class.getDeclaredField("instance");
-//        } catch (NoSuchFieldException e) {
-//            throw new RuntimeException(e);
-//        }
-//        field.setAccessible(true);
-//        try {
-//            field.set(null, dashboard);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     private void installSimDashboard() {
         try {
-            // Create FtcDashboard without calling its constructor
-            FtcDashboard fake = new ObjenesisStd()
-                    .newInstance(FtcDashboard.class);
+            // avoid FTCDashboard constructor
+            ObjectInstantiator<FtcDashboard> instantiator =
+                    new UnsafeFactoryInstantiator<>(FtcDashboard.class);
 
-            // Replace FtcDashboard.instance
+            FtcDashboard fake = instantiator.newInstance();
+
             Field instance = FtcDashboard.class.getDeclaredField("instance");
             instance.setAccessible(true);
             instance.set(null, fake);
 
-            // Replace telemetry
             Field telemetry = FtcDashboard.class.getDeclaredField("telemetry");
             telemetry.setAccessible(true);
             telemetry.set(fake, new SimTelemetry(this, false));
-
-        } catch (ReflectiveOperationException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to install simulated FtcDashboard", e);
         }
     }
