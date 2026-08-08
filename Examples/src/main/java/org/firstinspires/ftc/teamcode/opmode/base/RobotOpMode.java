@@ -61,8 +61,6 @@ public abstract class RobotOpMode extends OpMode {
 
         drivetrain = new Mecanum(hardwareMap);
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
         Logger.recordMetadata("Init/Teleop", "UtilOpMode");
     }
 

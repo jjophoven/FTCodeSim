@@ -39,6 +39,7 @@ dependencies {
 
     implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.5.1")
 
+    api("org.objenesis:objenesis:3.4")
     api("org.mockito:mockito-core:4.11.0")
 
     testImplementation("junit:junit:4.13.2")

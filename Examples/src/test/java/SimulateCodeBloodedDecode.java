@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 
 public class SimulateCodeBloodedDecode {
     @Test
-    public void test() throws IOException, InterruptedException, IllegalAccessException, NoSuchFieldException {
+    public void test() throws IOException, InterruptedException {
 
         SimHardwareMap simHardwareMap = new SimHardwareMap();
 
