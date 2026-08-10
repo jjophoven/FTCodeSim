@@ -14,8 +14,6 @@ import org.codeblooded.ftcodesim.driverstation.packets.Packet;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
-import org.objenesis.instantiator.ObjectInstantiator;
-import org.objenesis.instantiator.sun.UnsafeFactoryInstantiator;
 
 import java.lang.reflect.Field;
 
