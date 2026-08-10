@@ -21,11 +21,16 @@ dependencies {
     implementation("dev.frozenmilk.dairy:CachingHardware:1.0.0")
     testImplementation("junit:junit:4.13.2")
     // no version means it will get the local version
-    implementation("org.codeblooded.ftcodesim:ftcodesim")
-    implementation("org.codeblooded.ftcodesim:driverstation")
+    testImplementation("org.codeblooded.ftcodesim:ftcodesim")
+    testImplementation("org.codeblooded.ftcodesim:driverstation")
 
     implementation("com.pedropathing:core:2.1.2")
-    //implementation("com.pedropathing:telemetry:2.1.2")
+   // implementation("com.pedropathing:telemetry:2.1.2")
     implementation("com.pedropathing:ftc:2.1.2")
-    implementation("com.acmerobotics.dashboard:dashboard:0.6.0")
+    //implementation("com.acmerobotics.dashboard:dashboard:0.6.0")
+
+    implementation("org.psilynx.psikit:core:0.2.0")
+    implementation("org.psilynx.psikit:ftc:0.2.0")
+
+    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.5.1")
 }
