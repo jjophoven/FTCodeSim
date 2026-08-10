@@ -22,12 +22,16 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     public SimHardwareMap hardwareMap;
     public SimVoltageSensor voltageSensor;
 
+    public double regenerativeBraking;
+
     protected double[] motorAngularVelocities;
 
     public SimulatedDrivetrain(SimDrivetrainConfig config, String... motorNames) {
         this.config = config;
         this.motors = new SimMotor[motorNames.length];
         this.motorNames = motorNames;
+
+        regenerativeBraking = findRegenerativeBrakingCoefficient(config.quadraticBraking, config.linearBraking, config.naturalDeceleration, config.maxVelocity);
 
         motorAngularVelocities = new double[motors.length];
     }
@@ -49,30 +53,59 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         //position.log("Drivetrain/position", config.robotModel); gives null pointer err
     }
 
-    public SimMotor registerMotor(String name) {
-        double maxOmega = config.maxVelocity / config.wheelRadius;
-        double maxAlpha = config.maxAcceleration / config.wheelRadius;
-        double naturalAlpha = config.naturalDeceleration / config.wheelRadius;
+    public static double findRegenerativeBrakingCoefficient(double A, double B, double E, double maxVelocity) {
+        double bestD = 0;
+        double bestError = Double.POSITIVE_INFINITY;
 
-        double kA = (maxAlpha + naturalAlpha) / config.nominalVoltage;
-        double kBackEMF = maxAlpha / maxOmega;
+        // Search range. Adjust as needed.
+        for (double D = 1e-6; D <= 10.0; D += 0.01) {
+
+            double error = 0.0;
+
+            for (double v = 0; v <= maxVelocity; v += 0.1) {
+                double polynomial = A * v * v + B * v;
+
+                double model;
+                if (D < 1e-8) {
+                    model = v / E;
+                } else {
+                    model = v / D
+                            - (E / (D * D))
+                            * Math.log1p(D * v / E);
+                }
+
+                double diff = polynomial - model;
+                error += diff * diff;
+            }
+
+            if (error < bestError) {
+                bestError = error;
+                bestD = D;
+            }
+        }
+
+        return bestD;
+    }
+
+    public SimMotor registerMotor(String name) {
         double kCoulombFriction = config.naturalDeceleration / config.wheelRadius;
+        double backEMF = config.maxAcceleration / config.maxVelocity;
+        double kA = (backEMF * (config.maxVelocity / config.wheelRadius) + kCoulombFriction) / config.nominalVoltage;
 
         double[] zeroPowerBrakeCoefficients = new double[]{
-                    kA, kBackEMF, kBackEMF, kCoulombFriction
+                kA, backEMF, regenerativeBraking, regenerativeBraking, kCoulombFriction
         };
         double[] motorCoefficients = new double[]{
-                kA, kBackEMF, kBackEMF, kCoulombFriction
+                kA, backEMF, regenerativeBraking, 0, kCoulombFriction
         };
 
         MotorModel model = new MotorModel(
                 (v,d,b) -> d*b,
-                (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * Math.abs(d) : 0,
-                (v,d,b) -> Math.signum(v) != Math.signum(d) ? -v : 0,
+                (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * Math.abs(d) : 0, // back-emf
+                (v,d,b) -> Math.signum(v) != Math.signum(d) && d != 0 ? -v: 0,  // regenerative braking, not dependent on duty bc max braking is way stronger than max accel
+                (v,d,b) -> d == 0 ? -v: 0,  // short circuiting brake mode
                 (v,d,b) -> -Math.signum(v)
         );
-
-       // MotorModel model = MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)");
 
         SimMotorConfig motorConfig = new SimMotorConfig(name, model, motorCoefficients, zeroPowerBrakeCoefficients, config.staticVelocityRegion/config.wheelRadius, config.staticFriction/config.wheelRadius, voltageSensor);
         return hardwareMap.motor(motorConfig);

@@ -46,8 +46,8 @@ public class BeltMecanumFit {
 
         MotorModel model = new MotorModel(
                 (v,d,b) -> d*b,
-                (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * d : 0,
-                (v,d,b) -> Math.signum(v) != Math.signum(d) ? -v : 0,
+                (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * Math.abs(d) : 0, // back-emf
+                (v,d,b) -> Math.signum(v) != Math.signum(d) ? -v : 0, // regenerative braking
                 (v,d,b) -> -Math.signum(v)
         );
 
@@ -64,6 +64,12 @@ public class BeltMecanumFit {
                 (v,d,b) -> -v,
                 (v,d,b) -> -Math.signum(v)
         );
+
+//        MotorModel model = new MotorModel(
+//                (v,d,b) -> d*b,
+//                (v,d,b) -> -v * (Math.signum(v) == Math.signum(d) ? d : 1),
+//                (v,d,b) -> -Math.signum(v)
+//        );
 
         fitAndReportToCSV(paths, windowSize, polyDegree, "fitBelt.csv", model);
     }

@@ -20,11 +20,15 @@ run {
     val publishSimulator = gradle//
         .includedBuild("ftcodesim")//
         .task(":publishToMavenLocal")
+    val publishAscope = gradle//
+        .includedBuild("advantagescope")
+        .task(":publishToMavenLocal")
 
     tasks.register("publishLocal") {
         description = "Publish all libraries in the monorepo to maven local"
         dependsOn(publishMotorModeling)
         dependsOn(publishDriverStationWindow)
+        dependsOn(publishAscope)
         dependsOn(publishSimulator)
     }
 }
@@ -39,11 +43,15 @@ run {
     val publishSimulator = gradle//
         .includedBuild("ftcodesim")//
         .task(":publishReleasePublicationToDairyRepository")
+    val publishAscope = gradle//
+        .includedBuild("advantagescope")
+        .task(":publishReleasePublicationToDairyRepository")
 
     tasks.register("publishDairy") {
         description = "Publish all libraries in the monorepo to repo.dairy.foundation"
         dependsOn(publishMotorModeling)
         dependsOn(publishDriverStationWindow)
+        dependsOn(publishAscope)
         dependsOn(publishSimulator)
     }
 }

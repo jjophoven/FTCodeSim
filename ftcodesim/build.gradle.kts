@@ -37,6 +37,10 @@ dependencies {
     api("org.codeblooded.ftcodesim:advantagescope:${dairyPublishing.version}")
     api("org.codeblooded.ftcodesim:MotorModeling:${dairyPublishing.version}")
 
+    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.5.1")
+
+    api("org.objenesis:objenesis:3.4")
+
     testImplementation("junit:junit:4.13.2")
 }
 

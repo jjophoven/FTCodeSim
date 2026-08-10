@@ -1,3 +1,4 @@
+import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
@@ -24,11 +25,13 @@ public class SimulateMecanumBase {
         config.trackWidth = 16;
         config.wheelRadius = 1.889765;
         config.staticVelocityRegion = 2;
-        config.staticFriction = 45;
+        config.staticFriction = 55;
         config.maxAcceleration = 150;
-        config.maxVelocity = 70;
-        config.naturalDeceleration = 40;
-        config.strafeEfficiency = 0.90;
+        config.maxVelocity = 85;
+        config.quadraticBraking = 0.0021;
+        config.linearBraking = 0.0644;
+        config.naturalDeceleration = 49;
+        config.strafeEfficiency = 0.80;
         config.robotGeometry = new RobotGeometry(18, 18, 0, 0);
         config.robotModel = SourceType.ROBOT_MECANUM_BASE;
 
@@ -43,6 +46,7 @@ public class SimulateMecanumBase {
         simConfig.gamepad2Keybinds = new DefaultKeybinds();
         simConfig.simHardwareMap = simHardwareMap;
         simConfig.loopTimeMs = 20;
+        simConfig.field = SeasonField.DECODE;
 
         FTCodeSim sim = new FTCodeSim(simConfig);
         sim.run();

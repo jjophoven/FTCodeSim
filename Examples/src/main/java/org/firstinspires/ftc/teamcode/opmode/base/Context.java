@@ -17,18 +17,10 @@ public final class Context {
 
     public Context(OpMode opMode) {
         hardwareMap = opMode.hardwareMap;
-        telemetry = createTelemetry(opMode.telemetry);
-    }
-
-    private Telemetry createTelemetry(Telemetry opModeTelemetry) {
-        try {
-            return new MultipleTelemetry(
-                    opModeTelemetry,
-                    FtcDashboard.getInstance().getTelemetry()
-            );
-        } catch (Exception | ExceptionInInitializerError | NoClassDefFoundError error) {
-            return opModeTelemetry;
-        }
+        telemetry = new MultipleTelemetry(
+                opMode.telemetry,
+                FtcDashboard.getInstance().getTelemetry()
+        );
     }
 
     public void log(String name, double value) {

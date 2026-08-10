@@ -1,7 +1,9 @@
+import com.acmerobotics.dashboard.FtcDashboard;
 import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
+import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
@@ -9,13 +11,16 @@ import org.codeblooded.ftcodesim.hardware.drivetrain.SimMecanumConfig;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum;
 import org.codeblooded.ftcodesim.simulator.FTCodeSim;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.junit.Test;
-
 import java.io.IOException;
+import java.lang.reflect.Field;
+
 
 public class SimulateCodeBloodedDecode {
     @Test
     public void test() throws IOException, InterruptedException {
+
         SimHardwareMap simHardwareMap = new SimHardwareMap();
 
         SimMecanumConfig mecanumConfig = new SimMecanumConfig();
@@ -30,7 +35,9 @@ public class SimulateCodeBloodedDecode {
         mecanumConfig.staticFriction = 45;
         mecanumConfig.maxAcceleration = 150;
         mecanumConfig.maxVelocity = 75;
-        mecanumConfig.naturalDeceleration = 40;
+        mecanumConfig.naturalDeceleration = 33;
+        mecanumConfig.quadraticBraking = 0.0014846306;
+        mecanumConfig.linearBraking = 0.09533276;
         mecanumConfig.strafeEfficiency = 0.80;
         mecanumConfig.robotGeometry = new RobotGeometry(12, 18, 2, 0);
         mecanumConfig.robotModel = SourceType.ROBOT_CODE_BLOODED_DECODE;
@@ -48,6 +55,7 @@ public class SimulateCodeBloodedDecode {
         simConfig.field = SeasonField.DECODE;
 
         FTCodeSim sim = new FTCodeSim(simConfig);
+
         sim.run();
     }
 }
