@@ -17,6 +17,10 @@ public class SimTelemetry implements Telemetry {
         this(driverStation, true);
     }
 
+    public SimTelemetry() {
+        this(null, false);
+    }
+
     @Override
     public Item addData(String caption, String format, Object... args) {
         return null;

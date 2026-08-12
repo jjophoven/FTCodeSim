@@ -14,8 +14,6 @@ import org.codeblooded.ftcodesim.driverstation.packets.Packet;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
-import org.objenesis.instantiator.ObjectInstantiator;
-import org.objenesis.instantiator.sun.UnsafeFactoryInstantiator;
 
 import java.lang.reflect.Field;
 
@@ -55,26 +53,6 @@ public class FTCodeSim {
 
     AdvantageScopeRunner advantageScope;
 
-    private void installSimDashboard() {
-        try {
-            // avoid FTCDashboard constructor
-            ObjectInstantiator<FtcDashboard> instantiator =
-                    new UnsafeFactoryInstantiator<>(FtcDashboard.class);
-
-            FtcDashboard fake = instantiator.newInstance();
-
-            Field instance = FtcDashboard.class.getDeclaredField("instance");
-            instance.setAccessible(true);
-            instance.set(null, fake);
-
-            Field telemetry = FtcDashboard.class.getDeclaredField("telemetry");
-            telemetry.setAccessible(true);
-            telemetry.set(fake, new SimTelemetry(this, false));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to install simulated FtcDashboard", e);
-        }
-    }
-
     // TODO create a way to select from multiple "simulated" robots
     @RequiresApi(api = Build.VERSION_CODES.O)
     public FTCodeSim(SimConfig config) throws IOException {
@@ -83,7 +61,6 @@ public class FTCodeSim {
         this.config = config;
         this.simHardwareMap = this.config.simHardwareMap;
         this.telemetry = new SimTelemetry(this);
-        installSimDashboard();
 
         startServer();
         acceptClient();

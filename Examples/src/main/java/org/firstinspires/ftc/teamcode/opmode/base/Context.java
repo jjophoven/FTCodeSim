@@ -17,9 +17,10 @@ public final class Context {
 
     public Context(OpMode opMode) {
         hardwareMap = opMode.hardwareMap;
+        Telemetry telemetry1 = FtcDashboard.getInstance().getTelemetry();
         telemetry = new MultipleTelemetry(
                 opMode.telemetry,
-                FtcDashboard.getInstance().getTelemetry()
+                telemetry1
         );
     }
 
