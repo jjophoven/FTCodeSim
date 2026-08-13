@@ -126,22 +126,22 @@ public class Menu {
     public Option getSelectedOption() {
         return options.get(confirmedIndex);
     }
-    
+
     public String getDisplay() {
         if (currentSubmenu != null) {
             return currentSubmenu.getDisplay() + "\n(B to go back)";
         }
-        
+
         StringBuilder display = new StringBuilder(title + "\n");
         for (int i = 0; i < options.size(); i++) {
             if (i == confirmedIndex && i == selectedIndex) {
-                display.append("-* ");
+                display.append("> [x] ");
             } else if (i == confirmedIndex) {
-                display.append(" * ");
+                display.append("  [x] ");
             } else if (i == selectedIndex) {
-                display.append("-> ");
+                display.append("> [ ] ");
             } else {
-                display.append("   ");
+                display.append("  [ ] ");
             }
             display.append(options.get(i).getName()).append("\n");
         }

@@ -1,4 +1,4 @@
-//package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.bocaj.opmode;//package org.firstinspires.ftc.teamcode.opmode;
 //
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import org.firstinspires.ftc.teamcode.drivetrain.Tank;
@@ -18,7 +18,7 @@
 //    public void loop() {
 //        super.loop();
 //
-//        Logger.recordOutput("heading", localizer.getPose().getHeading());
+//        Logger.recordOutput("heading", robot.localizer.getPose().getHeading());
 //
 //        tank.drive(
 //                -gamepad1.left_stick_y,

@@ -2,7 +2,7 @@ import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
-import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
+import org.codeblooded.ftcodesim.hardware.devices.SimPinpoint;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedTank;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimTankConfig;
@@ -34,7 +34,7 @@ public class SimulateTank {
 
         SimHardwareMap simHardwareMap = new SimHardwareMap();
         simHardwareMap.register(tank);
-        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(tank));
+        simHardwareMap.register("pinpoint", new SimPinpoint(tank));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();

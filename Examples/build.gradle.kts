@@ -5,6 +5,8 @@ plugins {
 
 repositories {
     maven("https://www.jitpack.io")
+    maven("https://central.sonatype.com/repository/maven-snapshots")
+    maven("https://maven.brott.dev/")
 }
 
 ftc {
@@ -24,9 +26,15 @@ dependencies {
     testImplementation("org.codeblooded.ftcodesim:ftcodesim")
     testImplementation("org.codeblooded.ftcodesim:driverstation")
 
-    implementation("com.pedropathing:core:2.1.2")
+    //implementation("com.pedropathing:core:2.1.2")
    // implementation("com.pedropathing:telemetry:2.1.2")
-    implementation("com.pedropathing:ftc:2.1.2")
+   // implementation("com.pedropathing:ftc:2.1.2")
+
+    implementation("com.pedropathing:revhub:3.0.0-SNAPSHOT")
+//    {
+//        exclude group: 'org.aspectj', module: 'aspectjtools'
+//    }
+
     //implementation("com.acmerobotics.dashboard:dashboard:0.6.0")
 
     implementation("org.psilynx.psikit:core:0.2.0")

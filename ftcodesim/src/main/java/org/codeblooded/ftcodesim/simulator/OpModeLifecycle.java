@@ -34,10 +34,12 @@ public class OpModeLifecycle {
 
         SimFtcLogger ftcLog = new SimFtcLogger();
         ftcLog.start(opMode, 5800, "", true, "sim-logs");
-        Logger.setSimulation(true);
+       // Logger.setSimulation(true);
 
         long start = System.nanoTime();
         Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
+        Logger.recordMetadata("OpMode", opMode.getClass().getSimpleName());
+        Logger.recordOutput("Running", true);
 
         wrap(opMode::init);
 

@@ -30,8 +30,8 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         return new MotionVector(
                 (fl + fr + bl + br) / 4.0,
-                (fl - fr - bl + br) / 4.0 * strafeEfficiency,
-                (fl - fr + bl - br) / (4.0 * R)
+                (-fl + fr + bl - br) / 4.0 * strafeEfficiency,
+                (-fl + fr - bl + br) / (4.0 * R)
         );
     }
 
@@ -40,10 +40,10 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
         double y = motion.y / strafeEfficiency;
 
         return new double[]{
-                (motion.x + y + motion.theta * R) / wheelRadius, // FL
-                (motion.x - y - motion.theta * R) / wheelRadius, // FR
-                (motion.x - y + motion.theta * R) / wheelRadius, // BL
-                (motion.x + y - motion.theta * R) / wheelRadius  // BR
+                (motion.x - y - motion.theta * R) / wheelRadius, // FL
+                (motion.x + y + motion.theta * R) / wheelRadius, // FR
+                (motion.x + y - motion.theta * R) / wheelRadius, // BL
+                (motion.x - y + motion.theta * R) / wheelRadius  // BR
         };
     }
 }

@@ -2,7 +2,7 @@ import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
-import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
+import org.codeblooded.ftcodesim.hardware.devices.SimPinpoint;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
@@ -39,7 +39,7 @@ public class SimulateMecanumBase {
 
         SimHardwareMap simHardwareMap = new SimHardwareMap();
         simHardwareMap.register(drivetrain);
-        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(drivetrain));
+        simHardwareMap.register("pinpoint", new SimPinpoint(drivetrain));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();

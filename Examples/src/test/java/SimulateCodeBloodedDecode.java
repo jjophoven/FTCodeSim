@@ -1,9 +1,7 @@
-import com.acmerobotics.dashboard.FtcDashboard;
 import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
-import org.codeblooded.ftcodesim.hardware.devices.SimGobildaPinpoint;
-import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
+import org.codeblooded.ftcodesim.hardware.devices.SimOctoquad;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
@@ -11,10 +9,8 @@ import org.codeblooded.ftcodesim.hardware.drivetrain.SimMecanumConfig;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum;
 import org.codeblooded.ftcodesim.simulator.FTCodeSim;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.junit.Test;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 
 public class SimulateCodeBloodedDecode {
@@ -45,7 +41,8 @@ public class SimulateCodeBloodedDecode {
         SimulatedDrivetrain drivetrain = new SimulatedMecanum(mecanumConfig);
 
         simHardwareMap.register(drivetrain);
-        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(drivetrain));
+//        simHardwareMap.register("pinpoint", new SimGobildaPinpoint(drivetrain));
+        simHardwareMap.register("octoquad", new SimOctoquad(drivetrain));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();

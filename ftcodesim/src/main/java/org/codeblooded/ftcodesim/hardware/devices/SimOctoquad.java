@@ -1,6 +1,7 @@
 package org.codeblooded.ftcodesim.hardware.devices;
 
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
+import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -213,6 +214,7 @@ public class SimOctoquad implements OctoQuad {
         out.velX_mmS = (short) vel.getX(DistanceUnit.MM);
         out.velY_mmS = (short) vel.getY(DistanceUnit.MM);
         out.velHeading_radS = (float) vel.getHeading(AngleUnit.RADIANS);
+        out.localizerStatus = LocalizerStatus.RUNNING;
     }
 
     @Override
@@ -227,7 +229,7 @@ public class SimOctoquad implements OctoQuad {
 
     @Override
     public void setLocalizerPose(int posX_mm, int posY_mm, float heading_rad) {
-
+        drivetrain.setPosition(new MotionVector(posX_mm / 25.4, posY_mm / 25.4, heading_rad));
     }
 
     @Override
@@ -237,7 +239,7 @@ public class SimOctoquad implements OctoQuad {
 
     @Override
     public LocalizerStatus getLocalizerStatus() {
-        return null;
+        return LocalizerStatus.RUNNING;
     }
 
     @Override

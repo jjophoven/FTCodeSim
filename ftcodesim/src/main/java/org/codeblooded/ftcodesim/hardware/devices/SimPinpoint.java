@@ -13,10 +13,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
-public class SimGobildaPinpoint extends GoBildaPinpointDriver implements SimHardwareDevice {
+public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDevice {
     private final SimulatedDrivetrain drivetrain;
 
-    public SimGobildaPinpoint(SimulatedDrivetrain drivetrain) {
+    public SimPinpoint(SimulatedDrivetrain drivetrain) {
         super(new FakeI2C(), false);
         this.drivetrain = drivetrain;
     }
