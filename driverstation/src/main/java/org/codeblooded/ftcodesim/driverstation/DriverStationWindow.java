@@ -3,6 +3,7 @@ package org.codeblooded.ftcodesim.driverstation;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
+import org.codeblooded.ftcodesim.driverstation.client.ui.DSClientView;
 import org.codeblooded.ftcodesim.driverstation.packets.*;
 
 import javax.swing.*;
@@ -508,6 +509,24 @@ public class DriverStationWindow extends JFrame {
     public static void main(String[] args) {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
 
-        SwingUtilities.invokeLater(() -> new DriverStationWindow(port));
+        //SwingUtilities.invokeLater(() -> new DriverStationWindow(port));
+
+        JFrame frame = new JFrame("DriverStation");
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        DSClientView view = new DSClientView(port, (p)->{});
+
+        frame.getContentPane().add(view, BorderLayout.CENTER);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                view.getClientModel().dispose();
+                System.exit(0);
+            }
+        });
+
+        frame.setVisible(true);
     }
 }
