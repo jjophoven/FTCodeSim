@@ -38,8 +38,6 @@ public class OpModeLifecycle {
 
         long start = System.nanoTime();
         Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
-        Logger.recordMetadata("OpMode", opMode.getClass().getSimpleName());
-        Logger.recordOutput("Running", true);
 
         wrap(opMode::init);
 
@@ -65,8 +63,6 @@ public class OpModeLifecycle {
         opMode.time = opMode.getRuntime();
         opMode.gamepad1.fromByteArray(latestGamepad1Data);
         opMode.gamepad2.fromByteArray(latestGamepad2Data);
-
-        simHardwareMap.update();
 
         long logStart = System.nanoTime();
 

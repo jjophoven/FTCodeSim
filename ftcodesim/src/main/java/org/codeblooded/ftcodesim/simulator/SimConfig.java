@@ -9,10 +9,14 @@ import org.codeblooded.ftcodesim.input.Keybinds;
 public class SimConfig {
     public SimHardwareMap simHardwareMap;
 
-    public long loopTimeMs = 20;
+    public long loopTimeMs = 10;
 
     public Keybinds gamepad1Keybinds = new DefaultKeybinds();
     public Keybinds gamepad2Keybinds = new DefaultKeybinds();
 
-    public SeasonField field;
+    public SeasonField field = SeasonField.DECODE;
+
+    public boolean autoConfigureAscope = true;
+
+    public String name;
 }

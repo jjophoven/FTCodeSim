@@ -2,8 +2,6 @@ package org.codeblooded.ftcodesim.simulator;
 
 import android.os.Build;
 import androidx.annotation.RequiresApi;
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.codeblooded.ftcodesim.driverstation.OpModeState;
 import org.codeblooded.ftcodesim.ascope.AdvantageScopeRunner;
@@ -14,8 +12,6 @@ import org.codeblooded.ftcodesim.driverstation.packets.Packet;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
-
-import java.lang.reflect.Field;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -54,7 +50,6 @@ public class FTCodeSim {
     AdvantageScopeRunner advantageScope;
 
     // TODO create a way to select from multiple "simulated" robots
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public FTCodeSim(SimConfig config) throws IOException {
         this.gamepad1Keybinds = config.gamepad1Keybinds;
         this.gamepad2Keybinds = config.gamepad2Keybinds;
@@ -65,9 +60,11 @@ public class FTCodeSim {
         startServer();
         acceptClient();
 
-        advantageScope = new AdvantageScopeRunner(config.field);
-        config.simHardwareMap.update();
-        advantageScope.saveConfig();
+        if (config.autoConfigureAscope) {
+            advantageScope = new AdvantageScopeRunner(config.field);
+            simHardwareMap.update();
+            advantageScope.saveConfig();
+        }
 
         new Thread(() -> {
             while (windowIsRunning()) {
@@ -82,6 +79,16 @@ public class FTCodeSim {
     }
 
     public void run() throws InterruptedException {
+        new Thread(() -> {
+            while (windowIsRunning()) {
+                try {
+                    simHardwareMap.update();
+                } catch (NullPointerException e) {
+
+                }
+            }
+        }, "Physics Sim").start();
+
         while (windowIsRunning()) {
             if (opModeLifecycle == null) {
                 Thread.sleep(config.loopTimeMs);

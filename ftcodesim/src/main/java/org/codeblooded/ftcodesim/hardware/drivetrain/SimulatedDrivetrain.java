@@ -116,6 +116,14 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         for (int i = 0; i < motors.length; i++) {
             SimMotor motor = motors[i];
             motorAngularVelocities[i] = motor.getVelocity();
+            // TODO CHANGE COEFFICIENTS / FRICTION WHEN LATERAL TO MAKE IT GO THE RIGHT MAX SPEED
+
+//            double rhombusScale = Math.max(
+//                    Math.abs(x) / maxForwardSpeed + Math.abs(y) / maxStrafeSpeed,
+//                    1.0
+//            );
+//            x *= rhombusScale;
+//            y *= rhombusScale;
 
             Logger.recordOutput("Drivetrain/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
             Logger.recordOutput("Drivetrain/powers/" + motor.deviceName, motor.getPower());

@@ -103,13 +103,25 @@ public class Foresight implements Algorithm {
                 brakingDisplacement.dot(closestTangent),
                 targetAcceleration));
 
-        Vector2D displacementToPath = closestPose.minus(state.pose()).toVector2D().projectOnto(closestNormal);
+//        Vector2D displacementToPath = closestPose.minus(state.pose()).toVector2D().projectOnto(closestNormal);
+//        translationalError = displacementToPath.magnitude();
+//        Vector2D translationalVector = computeTranslationalCorrection(
+//                state,
+//                displacementToPath,
+//                brakingDisplacement.projectOnto(closestNormal)
+//        );
+
+        double closestTToBrake = pathTracker.current().curve.closestT(state.pose().toVector2D().plus(brakingDisplacement), closestT);
+        Vector2D closestNormalToBrake = pathTracker.current().curve.leftNormal(closestTToBrake);
+        Vector2D closestPoseToBrake = pathTracker.current().curve.get(closestTToBrake);
+        Vector2D displacementToPath = closestPoseToBrake.minus(state.pose().toVector2D()).projectOnto(closestNormalToBrake);
         translationalError = displacementToPath.magnitude();
         Vector2D translationalVector = computeTranslationalCorrection(
                 state,
                 displacementToPath,
-                brakingDisplacement.projectOnto(closestNormal)
+                brakingDisplacement.projectOnto(closestNormalToBrake)
         );
+
         Vector2D normalFeedforward = Vector2D.zero();
 
         boolean atParametricStart = closestT <= config.parametricTConstraint.get();

@@ -2,7 +2,7 @@ import org.codeblooded.ftcodesim.ascope.SeasonField;
 import org.codeblooded.ftcodesim.ascope.SourceType;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
-import org.codeblooded.ftcodesim.hardware.devices.SimPinpoint;
+import org.codeblooded.ftcodesim.hardware.devices.SimOctoquad;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum;
 import org.codeblooded.ftcodesim.simulator.SimConfig;
@@ -11,7 +11,6 @@ import org.codeblooded.ftcodesim.input.DefaultKeybinds;
 import org.codeblooded.ftcodesim.simulator.FTCodeSim;
 import org.junit.Test;
 import java.io.IOException;
-
 
 public class SimulateMecanumBase {
     @Test
@@ -27,11 +26,16 @@ public class SimulateMecanumBase {
         config.staticVelocityRegion = 2;
         config.staticFriction = 55;
         config.maxAcceleration = 150;
-        config.maxVelocity = 85;
+
+        config.maxVelocity = 65;
+
+        config.maxForwardSpeed = 65;
+        config.maxStrafeSpeed = 50;
+        // should go 40 diagonnaly
+
         config.quadraticBraking = 0.0021;
         config.linearBraking = 0.0644;
         config.naturalDeceleration = 49;
-        config.strafeEfficiency = 0.80;
         config.robotGeometry = new RobotGeometry(18, 18, 0, 0);
         config.robotModel = SourceType.ROBOT_MECANUM_BASE;
 
@@ -39,14 +43,15 @@ public class SimulateMecanumBase {
 
         SimHardwareMap simHardwareMap = new SimHardwareMap();
         simHardwareMap.register(drivetrain);
-        simHardwareMap.register("pinpoint", new SimPinpoint(drivetrain));
+        simHardwareMap.register("octoquad", new SimOctoquad(drivetrain));
 
         SimConfig simConfig = new SimConfig();
         simConfig.gamepad1Keybinds = new DefaultKeybinds();
         simConfig.gamepad2Keybinds = new DefaultKeybinds();
         simConfig.simHardwareMap = simHardwareMap;
-        simConfig.loopTimeMs = 20;
+        simConfig.loopTimeMs = 10;
         simConfig.field = SeasonField.DECODE;
+        simConfig.autoConfigureAscope = true;
 
         FTCodeSim sim = new FTCodeSim(simConfig);
         sim.run();

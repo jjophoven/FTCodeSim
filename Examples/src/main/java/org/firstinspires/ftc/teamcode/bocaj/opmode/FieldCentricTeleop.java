@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.bocaj.opmode;
 
+import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.ManualDrive;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.bocaj.opmode.base.TeleOpMode;
@@ -14,7 +15,7 @@ public class FieldCentricTeleop extends TeleOpMode {
     @Override
     public void init() {
         super.init();
-
+        follower.setPose(new Pose(72,72,Math.PI/4));
     }
 
     @Override
@@ -32,7 +33,8 @@ public class FieldCentricTeleop extends TeleOpMode {
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
                 -gamepad1.right_stick_x,
-                -follower.pose().heading()
+                -follower.pose().heading(),
+                alliance == Alliance.RED ? Math.PI/2 : -Math.PI/2
         ));
 //
 //        if (gamepad1.right_bumper) {

@@ -49,7 +49,6 @@ public class SimFtcLogger {
         recordOpModeMetadata(opMode);
     }
 
-
     @SuppressLint("SimpleDateFormat")
     private String defaultLogFilename(OpMode opMode) {
         return opMode.getClass().getSimpleName() +

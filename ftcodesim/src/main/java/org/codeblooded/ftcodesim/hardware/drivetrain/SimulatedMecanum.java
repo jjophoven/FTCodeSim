@@ -18,7 +18,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         R = config.wheelbase / 2 + config.trackWidth / 2;
         wheelRadius = config.wheelRadius;
-        this.strafeEfficiency = config.strafeEfficiency;
+        this.strafeEfficiency = config.maxStrafeSpeed / config.maxForwardSpeed; // strafeEfficiency produces ellipse instead of rhombus
     }
 
     @Override
@@ -28,22 +28,23 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
         double bl = motors[BL] * wheelRadius;
         double br = motors[BR] * wheelRadius;
 
-        return new MotionVector(
-                (fl + fr + bl + br) / 4.0,
-                (-fl + fr + bl - br) / 4.0 * strafeEfficiency,
-                (-fl + fr - bl + br) / (4.0 * R)
-        );
+        double x = (fl + fr + bl + br) / 4.0;
+        double y = (-fl + fr + bl - br) / 4.0 * strafeEfficiency;
+        double theta = (-fl + fr - bl + br) / (4.0 * R);
+
+        return new MotionVector(x, y, theta);
     }
 
     @Override
     double[] inverseKinematics(MotionVector motion) {
+        double x = motion.x;
         double y = motion.y / strafeEfficiency;
 
         return new double[]{
-                (motion.x - y - motion.theta * R) / wheelRadius, // FL
-                (motion.x + y + motion.theta * R) / wheelRadius, // FR
-                (motion.x + y - motion.theta * R) / wheelRadius, // BL
-                (motion.x - y + motion.theta * R) / wheelRadius  // BR
+                (x - y - motion.theta * R) / wheelRadius, // FL
+                (x + y + motion.theta * R) / wheelRadius, // FR
+                (x + y - motion.theta * R) / wheelRadius, // BL
+                (x - y + motion.theta * R) / wheelRadius  // BR
         };
     }
 }
