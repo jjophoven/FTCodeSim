@@ -23,16 +23,13 @@ public class SimulateMecanumBase {
         config.wheelbase = 16;
         config.trackWidth = 16;
         config.wheelRadius = 1.889765;
-        config.staticVelocityRegion = 2;
+        config.staticVelocityRegion = 1e-3;
         config.staticFriction = 55;
         config.maxAcceleration = 150;
-
         config.maxVelocity = 65;
-
-        config.maxForwardSpeed = 65;
-        config.maxStrafeSpeed = 50;
-        // should go 40 diagonnaly
-
+        config.forwardNaturalDeceleration = 49;
+        config.strafeNaturalDeceleration = 85;
+        config.turnNaturalDeceleration = 1;
         config.quadraticBraking = 0.0021;
         config.linearBraking = 0.0644;
         config.naturalDeceleration = 49;

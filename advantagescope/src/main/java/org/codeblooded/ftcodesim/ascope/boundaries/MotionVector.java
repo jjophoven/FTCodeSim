@@ -56,6 +56,7 @@ public class MotionVector {
 
     public MotionVector unitVector() {
         double mag = magnitude();
+        if (mag < 1e-9) return new MotionVector(0, 0, 0);
         return new MotionVector(x / mag, y / mag, 0);
     }
 

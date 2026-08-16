@@ -37,11 +37,6 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
         else {
             acceleration = config.motorModel.predict(config.modelCoefficients, velocity, power, voltage);
         }
-        if (Math.abs(velocity) < config.staticVelocityRegion && Math.abs(acceleration) < config.staticFriction) {
-            velocity = 0;
-            acceleration = 0;
-            return;
-        }
         velocity += acceleration * deltaTime;
     }
 

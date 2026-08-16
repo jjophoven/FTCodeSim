@@ -43,6 +43,71 @@ public class FieldBoundary {
         return false;
     }
 
+    public static MotionVector collisionNormal(
+            MotionVector pose,
+            RobotGeometry robot
+    ) {
+        if (!isOutOfBounds(pose, robot)) {
+            return new MotionVector(0, 0);
+        }
+
+        MotionVector[] corners = robot.corners(pose);
+
+        double bestDx = 0;
+        double bestDy = 0;
+        double largestPenetration = 0;
+
+        for (MotionVector corner : corners) {
+            if (pointInsidePolygon(corner, DECODE_FIELD)) {
+                continue;
+            }
+
+            double closestDistSq = Double.POSITIVE_INFINITY;
+            MotionVector closest = null;
+
+            for (int i = 0; i < DECODE_FIELD.length; i++) {
+                MotionVector a = DECODE_FIELD[i];
+                MotionVector b = DECODE_FIELD[(i + 1) % DECODE_FIELD.length];
+
+                MotionVector p = closestPointOnSegment(corner, a, b);
+
+                double dx = p.x() - corner.x();
+                double dy = p.y() - corner.y();
+                double distSq = dx * dx + dy * dy;
+
+                if (distSq < closestDistSq) {
+                    closestDistSq = distSq;
+                    closest = p;
+                }
+            }
+
+            if (closest != null) {
+                double dx = corner.x() - closest.x();
+                double dy = corner.y() - closest.y();
+
+                double dist = Math.hypot(dx, dy);
+
+                if (dist > largestPenetration) {
+                    largestPenetration = dist;
+                    bestDx = dx;
+                    bestDy = dy;
+                }
+            }
+        }
+
+        double length = Math.hypot(bestDx, bestDy);
+
+        if (length < 1e-9) {
+            return new MotionVector(0, 0);
+        }
+
+        // Outward normal
+        return new MotionVector(
+                bestDx / length,
+                bestDy / length
+        );
+    }
+
     public static MotionVector closestInBoundsPosition(
             MotionVector previousLegalPose,
             MotionVector desiredPose,

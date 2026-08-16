@@ -11,11 +11,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.codeblooded.fit.MotorModel;
 import org.psilynx.psikit.core.Logger;
 
+import static org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum.interpolateRadius;
+
 public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
-    private final SimMotor[] motors;
+    protected final SimMotor[] motors;
 
     public MotionVector position = new MotionVector(0, 0, 0);
     public MotionVector velocity = new MotionVector(0, 0, 0);
+    public MotionVector acceleration = new MotionVector(0, 0, 0);
 
     public SimDrivetrainConfig config;
     public String[] motorNames;
@@ -25,6 +28,7 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     public double regenerativeBraking;
 
     protected double[] motorAngularVelocities;
+    protected double[] motorAngularAccelerations;
 
     public SimulatedDrivetrain(SimDrivetrainConfig config, String... motorNames) {
         this.config = config;
@@ -34,6 +38,7 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         regenerativeBraking = findRegenerativeBrakingCoefficient(config.quadraticBraking, config.linearBraking, config.naturalDeceleration, config.maxVelocity);
 
         motorAngularVelocities = new double[motors.length];
+        motorAngularAccelerations = new double[motors.length];
     }
 
     public Pose2D getActualPose() {
@@ -57,7 +62,6 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         double bestD = 0;
         double bestError = Double.POSITIVE_INFINITY;
 
-        // Search range. Adjust as needed.
         for (double D = 1e-6; D <= 10.0; D += 0.01) {
 
             double error = 0.0;
@@ -87,10 +91,12 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         return bestD;
     }
 
+
     public SimMotor registerMotor(String name) {
         double kCoulombFriction = config.naturalDeceleration / config.wheelRadius;
         double backEMF = config.maxAcceleration / config.maxVelocity;
         double kA = (backEMF * (config.maxVelocity / config.wheelRadius) + kCoulombFriction) / config.nominalVoltage;
+        kCoulombFriction = 0;
 
         double[] zeroPowerBrakeCoefficients = new double[]{
                 kA, backEMF, regenerativeBraking, regenerativeBraking, kCoulombFriction
@@ -112,18 +118,12 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     }
 
     public void update(double deltaTime) {
+
         boolean allMotorsStationary = true;
         for (int i = 0; i < motors.length; i++) {
             SimMotor motor = motors[i];
             motorAngularVelocities[i] = motor.getVelocity();
-            // TODO CHANGE COEFFICIENTS / FRICTION WHEN LATERAL TO MAKE IT GO THE RIGHT MAX SPEED
-
-//            double rhombusScale = Math.max(
-//                    Math.abs(x) / maxForwardSpeed + Math.abs(y) / maxStrafeSpeed,
-//                    1.0
-//            );
-//            x *= rhombusScale;
-//            y *= rhombusScale;
+            motorAngularAccelerations[i] = motor.getAcceleration();
 
             Logger.recordOutput("Drivetrain/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
             Logger.recordOutput("Drivetrain/powers/" + motor.deviceName, motor.getPower());
@@ -134,11 +134,43 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
             }
         }
 
-        velocity = forwardKinematics(motorAngularVelocities).toFieldFrame(position.theta);
+        acceleration = forwardKinematics(motorAngularAccelerations);
+        MotionVector robotVel = velocity.toRobotFrame(position.theta);
+        double naturalDeceleration = interpolateRadius(49, 85, Math.atan2(robotVel.y, robotVel.x));
 
-        if (allMotorsStationary) {
+        if (acceleration.magnitude() < config.staticFriction && velocity.magnitude() < config.staticVelocityRegion && Math.abs(acceleration.theta) < 1e-3 && Math.abs(velocity.theta) < 1e-3) {
             velocity = new MotionVector(0, 0, 0);
+            acceleration = new MotionVector(0, 0, 0);
         }
+        else {
+            acceleration = acceleration.minus(robotVel.unitVector().scale(naturalDeceleration));
+            acceleration.theta -= 1 * Math.signum(velocity.theta);
+        }
+
+        acceleration.log("Drivetrain/acceleration");
+        velocity = velocity.step(acceleration.toFieldFrame(position.theta), deltaTime);
+
+        //velocity = forwardKinematics(motorAngularVelocities);
+
+//        double rhombusScale = Math.max(
+//                Math.abs(velocity.x) / 65 + Math.abs(velocity.y) / 50,
+//                1.0
+//        );
+//        velocity.x /= rhombusScale;
+//        velocity.y /= rhombusScale;
+
+//        if (allMotorsStationary) {
+//            velocity = new MotionVector(0, 0, 0);
+//        }
+
+//        for (int i = 0; i < motors.length; i++) {
+//            SimMotor motor = motors[i];
+////            double FL = Math.PI / 4;
+////            double FR = -Math.PI / 4;
+////            double BL = -Math.PI / 4;
+////            double BR = Math.PI / 4;
+//            motor.config.modelCoefficients = getMotorCoefficients(Math.atan2(velocity.y, velocity.x) - position.theta);
+//        }
 
         position = position.step(velocity, deltaTime);
 

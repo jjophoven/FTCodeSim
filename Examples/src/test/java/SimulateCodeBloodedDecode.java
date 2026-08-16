@@ -31,8 +31,11 @@ public class SimulateCodeBloodedDecode {
         config.staticFriction = 45;
         config.maxAcceleration = 150;
         config.maxVelocity = 65;
-        config.maxForwardSpeed = 65;
-        config.maxStrafeSpeed = 50;
+        config.staticVelocityRegion = 1e-3;
+        config.staticFriction = 55;
+        config.forwardNaturalDeceleration = 49;
+        config.strafeNaturalDeceleration = 85;
+        config.turnNaturalDeceleration = 1;
         config.naturalDeceleration = 33;
         config.quadraticBraking = 0.0014846306;
         config.linearBraking = 0.09533276;

@@ -12,6 +12,7 @@ public class SimMecanumConfig extends SimDrivetrainConfig {
     /** distance from center of backRight wheel to backLeft wheel */
     public double trackWidth;
 
-    public double maxForwardSpeed;
-    public double maxStrafeSpeed;
+    public double forwardNaturalDeceleration;
+    public double strafeNaturalDeceleration;
+    public double turnNaturalDeceleration;
 }
