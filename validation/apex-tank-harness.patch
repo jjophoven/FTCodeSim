@@ -1,0 +1,88 @@
+--- a/org/firstinspires/ftc/teamcode/sim/AccelerationFeedforwardPhaseSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/AccelerationFeedforwardPhaseSimulationTest.java
+@@ -9 +9 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/ApexSimulation.java
++++ b/org/firstinspires/ftc/teamcode/sim/ApexSimulation.java
+@@ -10,2 +10,2 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
+-import org.codeblooded.ftcodesim.physics.RobotGeometry;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
+@@ -101 +101 @@
+-        config.strafeEfficiency = 0.80;
++
+@@ -125,4 +125,4 @@
+-        config.frontLeftMotorName = FRONT_RIGHT_MOTOR;
+-        config.frontRightMotorName = FRONT_LEFT_MOTOR;
+-        config.backLeftMotorName = BACK_RIGHT_MOTOR;
+-        config.backRightMotorName = BACK_LEFT_MOTOR;
++        config.frontLeftMotorName = FRONT_LEFT_MOTOR;
++        config.frontRightMotorName = FRONT_RIGHT_MOTOR;
++        config.backLeftMotorName = BACK_LEFT_MOTOR;
++        config.backRightMotorName = BACK_RIGHT_MOTOR;
+@@ -135 +135 @@
+-        config.naturalDeceleration = 40;
++        config.naturalDeceleration = 0;
+@@ -152,0 +153,3 @@
++            motor.config.motorModel = new org.codeblooded.fit.MotorModel(
++                    (v,d,b) -> d*b, (v,d,b) -> 0, (v,d,b) -> -v,
++                    (v,d,b) -> -Math.signum(v));
+--- a/org/firstinspires/ftc/teamcode/sim/ApexSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/ApexSimulationTest.java
+@@ -13 +13 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/AutoTestSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/AutoTestSimulationTest.java
+@@ -12 +12 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/DualActuatedPathFollowingSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/DualActuatedPathFollowingSimulationTest.java
+@@ -12 +12 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/FeedforwardPhaseSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/FeedforwardPhaseSimulationTest.java
+@@ -11 +11 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/FollowerTunerTelemetryTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/FollowerTunerTelemetryTest.java
+@@ -10 +10 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/LocalizationTunerWorkflowTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/LocalizationTunerWorkflowTest.java
+@@ -15 +15 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/SimApexPinpoint.java
++++ b/org/firstinspires/ftc/teamcode/sim/SimApexPinpoint.java
+@@ -5 +5 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/TankAutoAccuracySimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/TankAutoAccuracySimulationTest.java
+@@ -12 +12 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/firstinspires/ftc/teamcode/sim/TankPathFollowingSimulationTest.java
++++ b/org/firstinspires/ftc/teamcode/sim/TankPathFollowingSimulationTest.java
+@@ -12 +12 @@
+-import org.codeblooded.ftcodesim.physics.MotionVector;
++import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
+--- a/org/codeblooded/ftcodesim/ascope/ApexAdvantageScopeLayout.java
++++ b/org/codeblooded/ftcodesim/ascope/ApexAdvantageScopeLayout.java
+@@ -8 +8 @@
+-import org.codeblooded.ftcodesim.physics.SeasonField;
++import org.codeblooded.ftcodesim.ascope.SeasonField;
+@@ -23,4 +23,2 @@
+-        AscopeViewEditor editor = new AscopeViewEditor(SeasonField.DECODE);
+-        if (configure(editor.root, editor.mapper)) {
+-            editor.save();
+-        }
++        // Headless validation: no UI layout installation.
++

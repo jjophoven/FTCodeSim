@@ -52,6 +52,12 @@ public class SimHardwareMap extends HardwareMap {
         return register(config.name, new SimMotor(config));
     }
 
+    /** Returns an existing simulated servo or registers a new ideal, instantaneous servo. */
+    public SimServo servo(String name) {
+        SimServo existing = tryGet(SimServo.class, name);
+        return existing != null ? existing : register(name, new SimServo());
+    }
+
     public <T extends HardwareDevice> T register(String name, T device) {
         System.out.println("Registering " + name + " as " + device.getClass().getSimpleName());
         put(name, device);

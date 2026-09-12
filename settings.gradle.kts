@@ -12,6 +12,7 @@ plugins {
 }
 
 includeBuild("Examples")
+includeBuild("DrivetrainExamples")
 includeBuild("ftcodesim")
 includeBuild("driverstation")
 includeBuild("MotorModeling")

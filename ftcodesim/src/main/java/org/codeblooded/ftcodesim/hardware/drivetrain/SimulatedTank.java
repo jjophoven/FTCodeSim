@@ -5,43 +5,48 @@ import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
 public class SimulatedTank extends SimulatedDrivetrain {
     private static final int FL = 0;
     private static final int FR = 1;
-    private static final int BL = 2;
-    private static final int BR = 3;
-
     private final SimTankConfig config;
+    private final boolean fourMotor;
 
     public SimulatedTank(SimTankConfig config) {
-        super(config, config.frontLeftMotorName, config.frontRightMotorName, config.backLeftMotorName, config.backRightMotorName);
+        super(config, config.motorNames());
         this.config = config;
+        this.fourMotor = motorNames.length == 4;
+    }
+
+    @Override
+    protected void integratePosition(double deltaTime) {
+        integrateLongitudinalPosition(deltaTime);
+    }
+
+    @Override
+    protected void constrainVelocity() {
+        constrainToLongitudinalVelocity();
     }
 
     @Override
     MotionVector forwardKinematics(double[] motors) {
         double fl = motors[FL] * config.wheelRadius;
         double fr = motors[FR] * config.wheelRadius;
-        double bl = motors[BL] * config.wheelRadius;
-        double br = motors[BR] * config.wheelRadius;
-
-        double left = (fl + bl) / 2.0;
-        double right = (fr + br) / 2.0;
+        double left = fourMotor ? (fl + motors[2] * config.wheelRadius) / 2.0 : fl;
+        double right = fourMotor ? (fr + motors[3] * config.wheelRadius) / 2.0 : fr;
 
         return new MotionVector(
                 (left + right) / 2.0,
                 0.0,
-                (left - right) / config.trackWidth
+                (right - left) / config.trackWidth
         );
     }
 
     @Override
     double[] inverseKinematics(MotionVector motion) {
-        double left = motion.x + motion.theta * config.trackWidth / 2.0;
-        double right = motion.x - motion.theta * config.trackWidth / 2.0;
+        double left = motion.x - motion.theta * config.trackWidth / 2.0;
+        double right = motion.x + motion.theta * config.trackWidth / 2.0;
 
-        return new double[]{
-                left / config.wheelRadius,
-                right / config.wheelRadius,
-                left / config.wheelRadius,
-                right / config.wheelRadius
-        };
+        if (!fourMotor) {
+            return new double[]{left / config.wheelRadius, right / config.wheelRadius};
+        }
+        return new double[]{left / config.wheelRadius, right / config.wheelRadius,
+                left / config.wheelRadius, right / config.wheelRadius};
     }
 }

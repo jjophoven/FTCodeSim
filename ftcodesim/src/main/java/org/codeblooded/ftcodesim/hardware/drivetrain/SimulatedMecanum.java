@@ -41,7 +41,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         acceleration = forwardKinematics(motorAngularAccelerations);
 
-
+        constrainVelocity();
         MotionVector robotVel = velocity.toRobotFrame(position.theta);
         double naturalDeceleration = interpolateRadius(config.forwardNaturalDeceleration, config.strafeNaturalDeceleration, Math.atan2(robotVel.y, robotVel.x));
 
@@ -59,9 +59,10 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
         acceleration = acceleration.toFieldFrame(position.theta);
 
         velocity = velocity.step(acceleration, deltaTime);
+        constrainVelocity();
 
         MotionVector legalPosition = position;
-        position = position.step(velocity, deltaTime);
+        integratePosition(deltaTime);
 
         boolean isOutOfBounds = FieldBoundary.isOutOfBounds(position, config.robotGeometry);
         if (isOutOfBounds) {
@@ -95,6 +96,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
             position = legalPosition.step(velocity, deltaTime);
         }
 
+        constrainVelocity();
         motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {
             motors[i].velocity = motorAngularVelocities[i];

@@ -54,3 +54,14 @@ dependencies {
 - Driver practice support with intaking, shooting, and scoring
 
 ![img.png](keymap.png)
+
+## Interactive drivetrain playground
+
+Run the `SimulateSelectableDrivetrain.runInteractiveDrivetrainTest` JUnit method in the
+`DrivetrainExamples` build. In the Driver Station, select `Interactive Drivetrain Test`,
+then Init and Start.
+
+- Drive with left-stick X/Y and turn with right-stick X.
+- Press X to cycle Mecanum, Tank, and Dual Actuated.
+- While Dual Actuated is selected, press A to toggle holonomic/tank mode.
+- Use D-pad Up/Down to change the speed scalar.

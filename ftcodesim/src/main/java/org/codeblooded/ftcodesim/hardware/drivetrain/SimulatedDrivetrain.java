@@ -11,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.codeblooded.fit.MotorModel;
 import org.psilynx.psikit.core.Logger;
 
-import static org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedMecanum.interpolateRadius;
 
 public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     protected final SimMotor[] motors;
@@ -135,8 +134,9 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         }
 
         acceleration = forwardKinematics(motorAngularAccelerations);
+        constrainVelocity();
         MotionVector robotVel = velocity.toRobotFrame(position.theta);
-        double naturalDeceleration = interpolateRadius(49, 85, Math.atan2(robotVel.y, robotVel.x));
+        double naturalDeceleration = config.naturalDeceleration;
 
         if (acceleration.magnitude() < config.staticFriction && velocity.magnitude() < config.staticVelocityRegion && Math.abs(acceleration.theta) < 1e-3 && Math.abs(velocity.theta) < 1e-3) {
             velocity = new MotionVector(0, 0, 0);
@@ -149,6 +149,7 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
 
         acceleration.log("Drivetrain/acceleration");
         velocity = velocity.step(acceleration.toFieldFrame(position.theta), deltaTime);
+        constrainVelocity();
 
         //velocity = forwardKinematics(motorAngularVelocities);
 
@@ -172,7 +173,7 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
 //            motor.config.modelCoefficients = getMotorCoefficients(Math.atan2(velocity.y, velocity.x) - position.theta);
 //        }
 
-        position = position.step(velocity, deltaTime);
+        integratePosition(deltaTime);
 
         velocity.log("Drivetrain/velocity");
         updateWheelRollVelocities();
@@ -227,11 +228,42 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
     }
 
     public void updateWheelRollVelocities() {
+        constrainVelocity();
         // Accounts for wheels moving from whole robot moving
         motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {
             motors[i].setRollVelocity(motorAngularVelocities[i]);
         }
+    }
+
+    /** Integrates field velocity; nonholonomic models override this to follow an arc. */
+    protected void integratePosition(double deltaTime) {
+        position = position.step(velocity, deltaTime);
+    }
+
+    /** Exact constant-twist step, using the velocity after this tick's acceleration. */
+    protected final void integrateLongitudinalPosition(double deltaTime) {
+        double speed = velocity.toRobotFrame(position.theta).x;
+        double turn = velocity.theta * deltaTime;
+        double halfTurn = turn / 2.0;
+        double sinc = Math.abs(halfTurn) < 1e-6
+                ? 1.0 - halfTurn * halfTurn / 6.0 : Math.sin(halfTurn) / halfTurn;
+        double distance = speed * deltaTime * sinc;
+        double middleHeading = position.theta + halfTurn;
+        position = new MotionVector(position.x + distance * Math.cos(middleHeading),
+                position.y + distance * Math.sin(middleHeading), position.theta + turn);
+        // Rotate the velocity with the chassis instead of losing speed by projection.
+        velocity = new MotionVector(speed, 0.0, velocity.theta).toFieldFrame(position.theta);
+    }
+
+    /** Allows a drivetrain model to enforce constraints such as tank drive's no-side-slip rule. */
+    protected void constrainVelocity() { }
+
+    /** Projects field velocity onto the robot's longitudinal axis while preserving turn rate. */
+    protected final void constrainToLongitudinalVelocity() {
+        MotionVector robotVelocity = velocity.toRobotFrame(position.theta);
+        velocity = new MotionVector(robotVelocity.x, 0.0, robotVelocity.theta)
+                .toFieldFrame(position.theta);
     }
 
     abstract MotionVector forwardKinematics(double[] motors);
