@@ -1,22 +1,21 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
-import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Matrix;
+import com.pedropathing.math.Vector2D;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.OctoQuadConfig;
+import com.pedropathing.revhub.localizers.OctoQuadLocalizer;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.bocaj.pedro.PredictiveConfig;
-
-import java.util.OptionalDouble;
 
 public class Constants {
     public static MecanumConfig driveConfig = new MecanumConfig(
@@ -39,12 +38,30 @@ public class Constants {
             c -> {
                 c.name.set("octoquad");
                 c.encoderResolutionUnit.set(DistanceUnit.MM);
-                c.offsetUnits.set(DistanceUnit.MM);
+                c.offsetUnits.set(DistanceUnit.INCH);
                 c.xPodDirection.set(OctoQuad.EncoderDirection.REVERSE);
                 c.yPodDirection.set(OctoQuad.EncoderDirection.REVERSE);
                 c.ticksPerUnit.set(37.25);
-                c.xPodOffset.set(-33.5);
-                c.yPodOffset.set(-63.0);
+//                c.xPodOffset.set(-33.5); // ~1.3 in, 2.3 -> -58.42mm
+//                c.yPodOffset.set(-63.0); // ~2.48 in, 0.3 -> -7.62mm
+
+                // end result should be y = -2.3, x = +0.3
+
+                // just y needs to be negative!!! for octoquad
+                // and switch x and y
+
+//                c.xPodOffset.set(-2.3875); // 2.3 -> -58.42mm
+//                c.yPodOffset.set(-0.3); // 0.3 -> -7.62mm // -1.175
+
+//                c.xPodOffset.set(-2.3875); // (inputted 2.3)
+//                c.yPodOffset.set(1.175);
+
+//                c.xPodOffset.set(-1.175);
+//                c.yPodOffset.set(-2.3875);
+
+                c.xPodOffset.set(-1.3);
+                c.yPodOffset.set(-2.48);
+
                 c.headingScalar.set(((3600 + 55.12)/3600));
             }
     );
@@ -65,73 +82,35 @@ public class Constants {
 
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                //c.normalFeedforward.set(-0.0645);
-//                c.headingFeedforward.set(
-//                        Controller.staticFromError(0.14).plus(Controller.staticBias(0.14)));
-                c.forwardTranslationalController.set(Controller.pid(0.2 , 0, 0));
-                //.plus(Controller.staticFeedforward(0.015)));
-                c.lateralTranslationalController.set(Controller.pid(0.2 * 85.17/66.8431, 0, 0));
-                //c.headingDeviationTolerance.set(Math.toRadians(45.0));
-//                        .plus(Controller.staticFeedforward(-0.0645)));
-                //   .plus(Controller.staticFromError(0.0645)));
-                // 2.7 * e - 0.18v = x * (e - 0.18v)
-//                c.brakeController.set(Controller.pid(0.0196, 0, 0) // 0.0196
-//                        .plus(Controller.dynamicFeedforward(0.0129)));
-                c.brakeController.set(Controller.pid(0, 0, 0) // 0.0196
-                        .plus(Controller.dynamicFeedforward(0.0129))); //1/85
-                //.plus(Controller.staticFeedforward(0.05)));
-                //c.turnBeforeDriving.set(true);
-//                c.brakeAccelFeedforward.set(Controller.dynamicFeedforward(0.0021)); // 0.0021
-//                c.brakeAccelFeedforward.set(Controller.dynamicFeedforward(0.042)); // 0.0021
-                c.brakeAccelFeedforward.set(Controller.dynamicFeedforward(0.021)); // 0.0021
+                Controller primaryTranslationalForward = Controller.proportional(0.226493318780903);
+                Controller secondaryTranslationalForward = Controller.proportional(0.08368322927660432);
+                Controller primaryTranslationalLateral = Controller.proportional(0.5015381114306278);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.18530493082846347);
+
+                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
+                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
+
+                c.coast.set(Controller.proportionalFeedforward(0.012957603483588636));
+                c.brake.set(Controller.proportionalFeedforward(0.01101396296105034));
+
+                c.headingFeedback.set(Controller.proportional(2.447421655157805));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.04730634263294, 0.007540928288975995));
                 c.headingDriveRatio.set(1.0);
-                c.timeoutConstraint.set(1000.0);
-//                c.maxAccelerationConstraint.set(70.0);
-//                c.maxVelocityConstraint.set(40.0);
-                c.headingController.set(Controller.pid(2.77, 0, 0.177));
-                c.linearBrakeCoefficients.set(Matrix.diag(.0644, .0644));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(.0021, .0021));
+                c.headingDeviationTolerance.set(0.001);
 
-                c.maxAchievableForwardVelocity.set(85.17);
-                c.maxAchievableStrafeVelocity.set(66.8431);
+//                    c.linearBrakeCoefficients.set(Matrix.diag(0.038561008825678214, 0.06927454668889409));
+//                    c.quadraticBrakeCoefficients.set(Matrix.diag(0.002985751705369463, 0.0020371201468262264));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.06447, 0.06447));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0024, 0.0024));
 
-                c.naturalForwardDeceleration.set(49.09);
-                c.naturalStrafeDeceleration.set(49.09);
-            }
-    );
-
-    // RobotConstant.getVoltage()
-
-    static PredictiveConfig predictiveConfig = new PredictiveConfig(
-            c -> {
-                c.forwardTranslationalController.set(Controller.pid(0.2 , 0, 0));
-                c.lateralTranslationalController.set(Controller.pid(0.2 * 85.17/66.8431, 0, 0));
-                c.coastController.set(Controller.pid(0.015, 0, 0)
-                        .plus(Controller.dynamicFeedforward(0.0129))
-                        .plus(Controller.staticFeedforward(0.05))); // TODO make depend on voltage
-                c.timeoutConstraint.set(1000.0);
-                //c.maxAccelerationConstraint.set(OptionalDouble.of(70.0));
-                //c.maxVelocityConstraint.set(OptionalDouble.of(40.0));
-                c.headingController.set(Controller.pid(2.77, 0, 0.177));
-
-                c.linearBrakeCoefficients.set(Matrix.diag(.0644, .0644));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(.0021, .0021));
-
-                c.maxAchievableForwardVelocity.set(85.17);
-                c.maxAchievableStrafeVelocity.set(66.8431);
-
-                c.naturalForwardDeceleration.set(49.09);
-                c.naturalStrafeDeceleration.set(49.09); // put here
-
-                c.brakeOvershootBias.set(1.0); // undershoot bias
-                //c.brakeAtEnd
-                c.maxCoastDecelerationConstraint.set(OptionalDouble.of(49.09));
-                c.coastDownToVelocity.set(20.0);
-                c.brakeAtEnd.set(true);
+                c.maxAchievableForwardVelocity.set(82.80318372444954);
+                c.maxAchievableStrafeVelocity.set(66.35440133280454);
+                c.naturalForwardDeceleration.set(42.84137414187512);
+                c.naturalStrafeDeceleration.set(62.12942961650345);
             }
     );
 
     public static Follower create(HardwareMap h) {
-        return new Follower(new com.pedropathing.revhub.localizers.OctoQuad(h, localizerConfig), new Mecanum(h, driveConfig), new Foresight(foresightConfig));
+        return new Follower(new OctoQuadLocalizer(h, localizerConfig), new Mecanum(h, driveConfig), new Foresight(foresightConfig));
     }
 }

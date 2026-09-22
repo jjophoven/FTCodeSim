@@ -40,6 +40,13 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
         velocity += acceleration * deltaTime;
     }
 
+    @Override
+    public void reset() {
+        power = 0;
+        velocity = 0;
+        acceleration = 0;
+    }
+
     public void setRollVelocity(double velocity) {
         this.velocity = velocity;
     }

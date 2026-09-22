@@ -4,4 +4,6 @@ import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 
 public interface SimHardwareDevice {
     void update(double deltaTime);
+
+    default void reset() {};
 }

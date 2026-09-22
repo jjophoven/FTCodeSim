@@ -79,15 +79,15 @@ public class FTCodeSim {
     }
 
     public void run() throws InterruptedException {
-        new Thread(() -> {
-            while (windowIsRunning()) {
-                try {
-                    simHardwareMap.update();
-                } catch (NullPointerException e) {
-
-                }
-            }
-        }, "Physics Sim").start();
+//        new Thread(() -> {
+//            while (windowIsRunning()) {
+//                try {
+//                    simHardwareMap.update();
+//                } catch (NullPointerException e) {
+//
+//                }
+//            }
+//        }, "Physics Sim").start();
 
         while (windowIsRunning()) {
             if (opModeLifecycle == null) {

@@ -91,12 +91,12 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         return bestD;
     }
 
-
     public SimMotor registerMotor(String name) {
-        double kCoulombFriction = config.naturalDeceleration / config.wheelRadius;
-        double backEMF = config.maxAcceleration / config.maxVelocity;
-        double kA = (backEMF * (config.maxVelocity / config.wheelRadius) + kCoulombFriction) / config.nominalVoltage;
-        kCoulombFriction = 0;
+        double kCoulombFriction = config.foresightConfig.naturalForwardDeceleration.get() / config.wheelRadius;
+        double backEMF = config.maxAcceleration / config.foresightConfig.maxAchievableForwardVelocity.get();
+        double kA = (backEMF * (config.foresightConfig.maxAchievableForwardVelocity.get() / config.wheelRadius) + kCoulombFriction) / config.nominalVoltage;
+        //kCoulombFriction = 0; // friction is handled by mecanum model
+        regenerativeBraking = 0;
 
         double[] zeroPowerBrakeCoefficients = new double[]{
                 kA, backEMF, regenerativeBraking, regenerativeBraking, kCoulombFriction
@@ -108,7 +108,8 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         MotorModel model = new MotorModel(
                 (v,d,b) -> d*b,
                 (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * Math.abs(d) : 0, // back-emf
-                (v,d,b) -> Math.signum(v) != Math.signum(d) && d != 0 ? -v: 0,  // regenerative braking, not dependent on duty bc max braking is way stronger than max accel
+                //(v,d,b) -> Math.signum(v) != Math.signum(d) && d != 0 ? -v: 0,  // regenerative braking, not dependent on duty bc max braking is way stronger than max accel
+                (v,d,b) -> 0,
                 (v,d,b) -> d == 0 ? -v: 0,  // short circuiting brake mode
                 (v,d,b) -> -Math.signum(v)
         );
@@ -117,72 +118,7 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         return hardwareMap.motor(motorConfig);
     }
 
-    public void update(double deltaTime) {
-
-        boolean allMotorsStationary = true;
-        for (int i = 0; i < motors.length; i++) {
-            SimMotor motor = motors[i];
-            motorAngularVelocities[i] = motor.getVelocity();
-            motorAngularAccelerations[i] = motor.getAcceleration();
-
-            Logger.recordOutput("Drivetrain/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
-            Logger.recordOutput("Drivetrain/powers/" + motor.deviceName, motor.getPower());
-            Logger.recordOutput("Drivetrain/angular accelerations radians per second per second/" + motor.deviceName, motor.getAcceleration());
-
-            if (!motor.isStationary()) {
-                allMotorsStationary = false;
-            }
-        }
-
-        acceleration = forwardKinematics(motorAngularAccelerations);
-        MotionVector robotVel = velocity.toRobotFrame(position.theta);
-        double naturalDeceleration = interpolateRadius(49, 85, Math.atan2(robotVel.y, robotVel.x));
-
-        if (acceleration.magnitude() < config.staticFriction && velocity.magnitude() < config.staticVelocityRegion && Math.abs(acceleration.theta) < 1e-3 && Math.abs(velocity.theta) < 1e-3) {
-            velocity = new MotionVector(0, 0, 0);
-            acceleration = new MotionVector(0, 0, 0);
-        }
-        else {
-            acceleration = acceleration.minus(robotVel.unitVector().scale(naturalDeceleration));
-            acceleration.theta -= 1 * Math.signum(velocity.theta);
-        }
-
-        acceleration.log("Drivetrain/acceleration");
-        velocity = velocity.step(acceleration.toFieldFrame(position.theta), deltaTime);
-
-        //velocity = forwardKinematics(motorAngularVelocities);
-
-//        double rhombusScale = Math.max(
-//                Math.abs(velocity.x) / 65 + Math.abs(velocity.y) / 50,
-//                1.0
-//        );
-//        velocity.x /= rhombusScale;
-//        velocity.y /= rhombusScale;
-
-//        if (allMotorsStationary) {
-//            velocity = new MotionVector(0, 0, 0);
-//        }
-
-//        for (int i = 0; i < motors.length; i++) {
-//            SimMotor motor = motors[i];
-////            double FL = Math.PI / 4;
-////            double FR = -Math.PI / 4;
-////            double BL = -Math.PI / 4;
-////            double BR = Math.PI / 4;
-//            motor.config.modelCoefficients = getMotorCoefficients(Math.atan2(velocity.y, velocity.x) - position.theta);
-//        }
-
-        position = position.step(velocity, deltaTime);
-
-        velocity.log("Drivetrain/velocity");
-        updateWheelRollVelocities();
-
-        // TODO maybe make it more accurate by calculating rolling accel?
-
-        position.log("Drivetrain/position", config.robotModel);
-
-        collisionCheck();
-    }
+    public abstract void update(double deltaTime);
 
     MotionVector previousLegalPose = new MotionVector(0, 0, 0);
 
@@ -215,6 +151,12 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
 
         Logger.recordOutput("isInBounds", !isOutOfBounds);
         previousLegalPose.log("previousLegalPose");
+    }
+
+    @Override
+    public void reset() {
+        velocity = new MotionVector(0, 0, 0);
+        position = new MotionVector(0, 0, 0);
     }
 
     public void setPosition(MotionVector position) {

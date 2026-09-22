@@ -16,6 +16,11 @@ public class SimulatedTank extends SimulatedDrivetrain {
     }
 
     @Override
+    public void update(double deltaTime) {
+
+    }
+
+    @Override
     MotionVector forwardKinematics(double[] motors) {
         double fl = motors[FL] * config.wheelRadius;
         double fr = motors[FR] * config.wheelRadius;

@@ -81,6 +81,20 @@ public class SimHardwareMap extends HardwareMap {
         }
     }
 
+    public void reset() {
+        for (List<HardwareDevice> device : allDevicesMap.values()) {
+            for (HardwareDevice d : device) {
+                if (d instanceof SimHardwareDevice) {
+                    ((SimHardwareDevice) d).reset();
+                }
+            }
+        }
+
+        for (SimHardwareMechanism mechanism : mechanisms) {
+            mechanism.reset();
+        }
+    }
+
     private void updateDeltaTime() {
         long currentTime = System.nanoTime();
         deltaTime = (currentTime - previousTime) * 1e-9;

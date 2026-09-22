@@ -13,7 +13,7 @@ import static com.pedropathing.api.Paths.curve;
 
 @TeleOp(group = "4")
 public class Curves extends OpMode {
-    public static double DISTANCE = 48;
+    public static double DISTANCE = 36;
     public double loops = 0, lastLoop = 0, loopTime = 0;
     private Path forwards, backwards;
     private boolean forward;
@@ -27,20 +27,9 @@ public class Curves extends OpMode {
 
     @Override
     public void start() {
-        forwards = curve(new Pose(72,72), new Pose(Math.abs(DISTANCE) + 72,72), new Pose(Math.abs(DISTANCE) + 72,DISTANCE + 72)).
-                heading(new Interpolator() {
-                    @Override
-                    public double interpolate(Curve curve, double t) {
-                        return Math.PI;
-                    }
-
-                    @Override
-                    public double differentiate(Curve curve, double t) {
-                        return 0;
-                    }
-                });
+        forwards = curve(new Pose(72,72), new Pose(Math.abs(DISTANCE) + 72,72), new Pose(Math.abs(DISTANCE) + 72,DISTANCE + 72)).constant(Math.PI);
         backwards = curve(new Pose(Math.abs(DISTANCE) + 72,DISTANCE + 72), new Pose(Math.abs(DISTANCE) + 72,72), new Pose(72,72))
-                .heading(Interpolator.piecewise().until(0.5, Interpolator.tangent).until(1.0, Interpolator.constant(0)));
+                .heading(Interpolator.tangent);
         follower.follow(forwards);
     }
 

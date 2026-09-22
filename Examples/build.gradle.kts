@@ -30,7 +30,7 @@ dependencies {
    // implementation("com.pedropathing:telemetry:2.1.2")
    // implementation("com.pedropathing:ftc:2.1.2")
 
-    implementation("com.pedropathing:revhub:3.0.0-SNAPSHOT")
+    implementation("com.pedropathing:revhub:3.0.0")
 //    {
 //        exclude group: 'org.aspectj', module: 'aspectjtools'
 //    }

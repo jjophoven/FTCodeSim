@@ -17,7 +17,6 @@ public class OpModeLifecycle {
     SimHardwareMap simHardwareMap;
     SimTelemetry telemetry;
     long loopTimeMs;
-    SimFtcLogger ftcLog;
 
     public OpModeLifecycle(OpMode opMode, SimTelemetry telemetry, SimHardwareMap simHardwareMap, long loopTimeMs) {
         this.opMode = opMode;
@@ -34,7 +33,6 @@ public class OpModeLifecycle {
 
         SimFtcLogger ftcLog = new SimFtcLogger();
         ftcLog.start(opMode, 5800, "", true, "sim-logs");
-       // Logger.setSimulation(true);
 
         long start = System.nanoTime();
         Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
@@ -54,9 +52,10 @@ public class OpModeLifecycle {
         wrap(opMode::stop);
 
         Logger.end();
+        simHardwareMap.reset();
     }
 
-    public void wrap(Runnable runnable) throws InterruptedException {
+    public void wrap(Runnable runnable) {
         long loopStart = System.nanoTime();
 
         // FTC SDK's internalPreUserCode
@@ -83,10 +82,15 @@ public class OpModeLifecycle {
 
         long simEnd = System.nanoTime();
 
-        Thread.sleep(loopTimeMs);
+        int physicsCount = 0;
+        while ((System.nanoTime() - loopStart) * 1e-6 < loopTimeMs) {
+            simHardwareMap.update();
+            physicsCount++;
+        }
 
         long loopEnd = System.nanoTime();
         long userCodeTime = userCodeEnd - userCodeStart;
+        Logger.recordOutput("OpMode/physics/updates", physicsCount);
         Logger.recordOutput("OpMode/noSleepMs", (simEnd - loopStart) * 1e-6);
         Logger.recordOutput("OpMode/totalLoopTimeMs", (loopEnd - loopStart) * 1e-6);
         Logger.recordOutput("OpMode/userCodeMs", userCodeTime * 1e-6);
