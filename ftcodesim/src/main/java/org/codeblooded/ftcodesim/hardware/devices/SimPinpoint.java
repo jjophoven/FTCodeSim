@@ -23,8 +23,8 @@ public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDev
 
     @Override
     public void update(double deltaTime) {
-        pose2D = drivetrain.getActualPose(); // TODO add optional noise
-        headingVel = drivetrain.getVelocityPose().getHeading(AngleUnit.RADIANS); // TODO add optional noise
+        pose2D = drivetrain.getActualPose();
+        headingVel = drivetrain.velocity.theta; // TODO add optional noise
     }
 
     @Override

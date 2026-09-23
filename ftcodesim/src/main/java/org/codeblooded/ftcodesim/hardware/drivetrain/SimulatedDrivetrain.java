@@ -5,9 +5,7 @@ import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
 import org.codeblooded.ftcodesim.ascope.boundaries.RobotGeometry;
 import org.codeblooded.ftcodesim.hardware.SimHardwareMap;
 import org.codeblooded.ftcodesim.hardware.devices.*;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.codeblooded.fit.MotorModel;
 import org.psilynx.psikit.core.Logger;
 
@@ -43,10 +41,6 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
 
     public Pose2D getActualPose() {
         return new Pose2D(DistanceUnit.INCH, position.x(), position.y(), AngleUnit.RADIANS, position.theta());
-    }
-
-    public Pose2D getVelocityPose() {
-        return new Pose2D(DistanceUnit.INCH, velocity.x(), velocity.y(), AngleUnit.RADIANS, velocity.theta());
     }
 
     public void registerDevices(SimHardwareMap hardwareMap) {
@@ -96,7 +90,8 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         double backEMF = config.maxAcceleration / config.foresightConfig.maxAchievableForwardVelocity.get();
         double kA = (backEMF * (config.foresightConfig.maxAchievableForwardVelocity.get() / config.wheelRadius) + kCoulombFriction) / config.nominalVoltage;
         //kCoulombFriction = 0; // friction is handled by mecanum model
-        regenerativeBraking = 0;
+        //regenerativeBraking = 0;
+        //regenerativeBraking *= 3;
 
         double[] zeroPowerBrakeCoefficients = new double[]{
                 kA, backEMF, regenerativeBraking, regenerativeBraking, kCoulombFriction
@@ -108,8 +103,8 @@ public abstract class SimulatedDrivetrain implements SimHardwareMechanism {
         MotorModel model = new MotorModel(
                 (v,d,b) -> d*b,
                 (v,d,b) -> Math.signum(v) == Math.signum(d) ? -v * Math.abs(d) : 0, // back-emf
-                //(v,d,b) -> Math.signum(v) != Math.signum(d) && d != 0 ? -v: 0,  // regenerative braking, not dependent on duty bc max braking is way stronger than max accel
-                (v,d,b) -> 0,
+                (v,d,b) -> Math.signum(v) != Math.signum(d) && d != 0 ? -v: 0,  // regenerative braking, not dependent on duty bc max braking is way stronger than max accel
+                //(v,d,b) -> 0,
                 (v,d,b) -> d == 0 ? -v: 0,  // short circuiting brake mode
                 (v,d,b) -> -Math.signum(v)
         );

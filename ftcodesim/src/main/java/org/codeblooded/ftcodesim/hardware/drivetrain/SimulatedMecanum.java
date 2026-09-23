@@ -421,12 +421,16 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
             SimMotor motor = motors[i];
             motorAngularAccelerations[i] = motor.getAcceleration();
 
-            Logger.recordOutput("Mecanum/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
-            Logger.recordOutput("Mecanum/powers/" + motor.deviceName, motor.getPower());
-            Logger.recordOutput("Mecanum/angular accelerations radians per second per second/" + motor.deviceName, motor.getAcceleration());
+            Logger.recordOutput("Mecanum/wheel/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
+            Logger.recordOutput("Mecanum/wheel/powers/" + motor.deviceName, motor.getPower());
+            Logger.recordOutput("Mecanum/wheel/angular accelerations radians per second per second/" + motor.deviceName, motor.getAcceleration());
         }
 
         MotionVector robotVel = velocity.toRobotFrame(position.theta);
+        MotionVector robotAccel = forwardKinematics(motorAngularAccelerations);
+
+        robotVel.logV("Mecanum/robot/rawVelocity inches per second");
+        robotAccel.logV("Mecanum/robot/rawAcceleration inches per second squared");
 
         double vx = robotVel.x;
         double vy = robotVel.y;
@@ -436,11 +440,9 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         double speed = Math.hypot(vx, vy);
 
-        MotionVector rawAcceleration = forwardKinematics(motorAngularAccelerations);
-
         double velocityDotAcceleration =
-                robotVel.x * rawAcceleration.x
-                        + robotVel.y * rawAcceleration.y;
+                robotVel.x * robotAccel.x
+                        + robotVel.y * robotAccel.y;
 
         if (speed > 1e-6 && velocityDotAcceleration >= 0) {
             double cos = Math.abs(vx) / speed;
@@ -462,27 +464,23 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
             xDecel = decel * vx / speed;
             yDecel = decel * vy / speed;
         }
-//
-//        rawAcceleration = forwardKinematics(motorAngularAccelerations, robotVel, xDecel, yDecel);
-        if (Math.signum(robotVel.x) != Math.signum(rawAcceleration.x) || rawAcceleration.x == 0)
-            rawAcceleration.x -= robotVel.x * forward.A2 + forward.B2 * Math.signum(robotVel.x) + xDecel;
 
-        if (Math.signum(robotVel.y) != Math.signum(rawAcceleration.y) || rawAcceleration.y == 0)
-            rawAcceleration.y -= robotVel.y * strafe.A2 + strafe.B2 * Math.signum(robotVel.y) - yDecel;
+        if (Math.signum(robotVel.x) != Math.signum(robotAccel.x) || robotAccel.x == 0)
+            robotAccel.x -= robotVel.x * forward.A2 + forward.B2 * Math.signum(robotVel.x) + xDecel;
 
-        if (Math.signum(robotVel.theta) != Math.signum(rawAcceleration.theta) || rawAcceleration.theta == 0)
-            rawAcceleration.theta -= robotVel.theta * heading.A2 + heading.B2 * Math.signum(robotVel.theta) - config.turnNaturalDeceleration * Math.signum(robotVel.theta);
+        if (Math.signum(robotVel.y) != Math.signum(robotAccel.y) || robotAccel.y == 0)
+            robotAccel.y -= robotVel.y * strafe.A2 + strafe.B2 * Math.signum(robotVel.y) - yDecel;
 
-        rawAcceleration.log("rawAccel");
+        if (Math.signum(robotVel.theta) != Math.signum(robotAccel.theta) || robotAccel.theta == 0)
+            robotAccel.theta -= robotVel.theta * heading.A2 * 7 + heading.B2 * Math.signum(robotVel.theta) - config.turnNaturalDeceleration * Math.signum(robotVel.theta);
 
-// 0.04730634263294, 0.007540928288975995
         boolean isStationary =
                 Math.abs(robotVel.x) < config.staticVelocityRegion
                         && Math.abs(robotVel.y) < config.staticVelocityRegion
                         && Math.abs(robotVel.theta) < config.staticVelocityRegion
-                        && Math.abs(rawAcceleration.x) < config.foresightConfig.naturalForwardDeceleration.get()
-                        && Math.abs(rawAcceleration.y) < config.foresightConfig.naturalStrafeDeceleration.get()
-                        && Math.abs(rawAcceleration.theta) < config.turnNaturalDeceleration;
+                        && Math.abs(robotAccel.x) < config.foresightConfig.naturalForwardDeceleration.get()
+                        && Math.abs(robotAccel.y) < config.foresightConfig.naturalStrafeDeceleration.get()
+                        && Math.abs(robotAccel.theta) < config.turnNaturalDeceleration;
 
         if (isStationary) {
             robotVel = new MotionVector(0, 0, 0);
@@ -494,7 +492,10 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 //                        config.turnNaturalDeceleration * Math.signum(robotVel.theta);
         }
 
-        acceleration = rawAcceleration.toFieldFrame(position.theta);
+        robotVel.logV("Mecanum/robot/velocity inches per second");
+        robotAccel.logV("Mecanum/robot/acceleration inches per second squared");
+
+        acceleration = robotAccel.toFieldFrame(position.theta);
         velocity = robotVel.toFieldFrame(position.theta).step(acceleration, deltaTime);
 
         MotionVector legalPosition = position;
@@ -537,8 +538,8 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
             motors[i].velocity = motorAngularVelocities[i];
         }
 
-        acceleration.log("Mecanum/acceleration");
-        velocity.log("Mecanum/velocity");
+        acceleration.logV("Mecanum/acceleration");
+        velocity.logV("Mecanum/velocity");
         position.log("Mecanum/position", config.robotModel);
         Logger.recordOutput("isInBounds", !isOutOfBounds);
     }

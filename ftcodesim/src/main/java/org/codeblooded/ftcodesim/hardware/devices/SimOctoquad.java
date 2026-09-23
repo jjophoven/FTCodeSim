@@ -210,10 +210,9 @@ public class SimOctoquad implements OctoQuad {
         out.heading_rad = (float) pose.getHeading(AngleUnit.RADIANS);
         out.posX_mm = (short) pose.getX(DistanceUnit.MM);
         out.posY_mm = (short) pose.getY(DistanceUnit.MM);
-        Pose2D vel = drivetrain.getVelocityPose();
-        out.velX_mmS = (short) vel.getX(DistanceUnit.MM);
-        out.velY_mmS = (short) vel.getY(DistanceUnit.MM);
-        out.velHeading_radS = (float) vel.getHeading(AngleUnit.RADIANS);
+        out.velX_mmS = (short) (drivetrain.velocity.x() * 25.4);
+        out.velY_mmS = (short) (drivetrain.velocity.y() * 25.4);
+        out.velHeading_radS = (float) drivetrain.velocity.theta;
         out.localizerStatus = LocalizerStatus.RUNNING;
     }
 

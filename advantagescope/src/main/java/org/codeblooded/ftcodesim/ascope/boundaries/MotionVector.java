@@ -102,6 +102,13 @@ public class MotionVector {
         Logger.recordOutput(key + " ftc coords (m)", toFtcCoords().toWPIPose());
     }
 
+    public void logV(String key) {
+        Logger.recordOutput(key + " Pedro coords (inches)", toWPIPose());
+        double inchesPerMeter = 39.37;
+        double halfField = 141.5 / 2;
+        Logger.recordOutput(key + " ftc coords (m)", new MotionVector(-(y - halfField) / inchesPerMeter, (x - halfField) / inchesPerMeter, theta).toWPIPose());
+    }
+
     public void log(String key, SourceType sourceType) {
         log(key);
         AdvantageScopeRunner.INSTANCE.addSource("RealOutputs/" + key + " ftc coords (m)", sourceType);
