@@ -262,6 +262,16 @@ public class SimOctoquad implements OctoQuad {
     }
 
     @Override
+    public int getUptimeMs() {
+        return 0;
+    }
+
+    @Override
+    public int getIMUDiagParam() {
+        return 0;
+    }
+
+    @Override
     public void saveParametersToFlash() {
 
     }

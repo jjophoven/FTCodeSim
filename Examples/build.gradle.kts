@@ -1,6 +1,6 @@
 plugins {
-    id("dev.frozenmilk.teamcode") version "11.1.0-1.1.1"
-    id("dev.frozenmilk.sinister.sloth.load") version "0.2.4"
+    id("dev.frozenmilk.teamcode") version "12.0.0-1.2.1"
+    id("dev.frozenmilk.sinister.sloth.load") version "0.3.2"
 }
 
 repositories {
@@ -26,7 +26,7 @@ dependencies {
     testImplementation("org.codeblooded.ftcodesim:ftcodesim")
     testImplementation("org.codeblooded.ftcodesim:driverstation")
 
-    implementation("com.pedropathing:revhub:3.0.1")
+    implementation("com.pedropathing:revhub:3.0.2")
 
     implementation("org.psilynx.psikit:core:0.2.0")
     implementation("org.psilynx.psikit:ftc:0.2.0")

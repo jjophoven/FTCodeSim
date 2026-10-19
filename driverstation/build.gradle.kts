@@ -1,8 +1,9 @@
 plugins {
-    id("dev.frozenmilk.jvm-library") version "11.1.0-1.1.1"
-    id("dev.frozenmilk.publish") version "0.0.5"
-    id("dev.frozenmilk.doc") version "0.0.5"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("dev.frozenmilk.jvm-library") version "12.0.0-1.2.1"
+    id("dev.frozenmilk.publish") version "0.1.0"
+    id("dev.frozenmilk.doc") version "0.1.0"
+    //id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.0.0"
     application
 }
 
