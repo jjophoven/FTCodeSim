@@ -1,5 +1,5 @@
 plugins {
-    id("dev.frozenmilk.android-library") version "12.0.0-1.2.1"
+    id("dev.frozenmilk.android-library") version "12.0.0-1.2.3"
     id("dev.frozenmilk.publish") version "0.1.0"
     id("dev.frozenmilk.doc") version "0.1.0"
 }
@@ -42,7 +42,7 @@ dependencies {
     api("org.codeblooded.ftcodesim:advantagescope:${dairyPublishing.version}")
     api("org.codeblooded.ftcodesim:MotorModeling:${dairyPublishing.version}")
 
-    implementation("com.pedropathing:revhub:3.0.1")
+    implementation("com.pedropathing:revhub:3.0.2")
 
     testImplementation("junit:junit:4.13.2")
 }
