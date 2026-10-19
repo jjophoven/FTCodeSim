@@ -23,8 +23,6 @@ dependencies {
 
 tasks.shadowJar {
     archiveBaseName.set("DriverStationWindow1")
-//    archiveVersion.set("")
-//    archiveClassifier.set("")
 
     manifest {
         attributes["Main-Class"] = "org.codeblooded.ftcodesim.driverstation.DriverStationWindow"
