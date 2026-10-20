@@ -50,10 +50,24 @@ public class AdvantageScopeRunner extends JsonEditor {
             return;
         }
 
-        File exe = new File(
-                System.getenv("LOCALAPPDATA"),
-                "Programs/advantagescope/AdvantageScope.exe"
-        );
+        File exe;
+
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            exe = new File(
+                    System.getenv("LOCALAPPDATA"),
+                    "Programs/advantagescope/AdvantageScope.exe"
+            );
+        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            exe = new File(
+                    System.getProperty("user.home"),
+                    "Applications/AdvantageScope.app/Contents/MacOS/AdvantageScope"
+            );
+        } else {
+            exe = new File(
+                    System.getProperty("user.home"),
+                    ".local/bin/advantagescope"
+            );
+        }
 
         try {
             window = new ProcessBuilder(exe.getAbsolutePath()).start();
