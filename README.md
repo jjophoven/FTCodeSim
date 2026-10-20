@@ -35,7 +35,7 @@ repositories {
 And to the `dependencies` block add:
 ```gradle
 dependencies {
-    implementation("org.codeblooded.ftcodesim:ftcodesim:v0.1.0-alpha.1")
+    implementation("org.codeblooded.ftcodesim:ftcodesim:0.2.1-beta")
     testImplementation "junit:junit:4.13.2"
 }
 ```
