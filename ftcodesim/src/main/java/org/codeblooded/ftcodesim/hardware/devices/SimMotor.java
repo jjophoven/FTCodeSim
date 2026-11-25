@@ -52,9 +52,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
         this.maxRPM = maxRPM;
         this.voltageSensor = voltageSensor;
 
-        motorType = MotorConfigurationType
-                .getUnspecifiedMotorType()
-                .clone();
+        motorType = new MotorConfigurationType();
 
         motorType.setMaxRPM(maxRPM);
         motorType.setTicksPerRev(ticksPerRev);
