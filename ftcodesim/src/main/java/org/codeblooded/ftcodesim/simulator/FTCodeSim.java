@@ -91,7 +91,7 @@ public class FTCodeSim {
     }
 
     public boolean windowIsRunning() {
-        return driverStationWindow.isAlive() && advantageScope.isOpen();
+        return driverStationWindow.isAlive() && (advantageScope == null || advantageScope.isOpen());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

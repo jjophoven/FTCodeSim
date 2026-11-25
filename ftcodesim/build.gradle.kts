@@ -45,6 +45,8 @@ dependencies {
     implementation("com.pedropathing:revhub:3.0.2")
 
     testImplementation("junit:junit:4.13.2")
+
+    implementation("dev.nextftc.v2:telemetry-ftc:0.4.0")
 }
 
 publishing {

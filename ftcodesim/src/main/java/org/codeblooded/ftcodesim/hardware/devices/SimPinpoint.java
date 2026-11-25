@@ -21,16 +21,32 @@ public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDev
         this.drivetrain = drivetrain;
     }
 
+    Pose2D velocity;
+
     @Override
     public void update(double deltaTime) {
-        pose2D = drivetrain.getActualPose();
-        headingVel = drivetrain.velocity.theta; // TODO add optional noise
+        position = drivetrain.getPose();
+        velocity = new Pose2D(DistanceUnit.INCH, drivetrain.getVelocity().y(), drivetrain.getVelocity().x(), AngleUnit.RADIANS, drivetrain.getVelocity().theta);
+        headingVel = drivetrain.getVelocity().theta;
     }
 
     @Override
     public void setPosition(Pose2D pos) {
-        pose2D = pos;
-        drivetrain.position = new MotionVector(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS));
+        position = pos;
+        drivetrain.setPosition(new MotionVector(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS)));
+    }
+
+    public double getHeading(AngleUnit angleUnit) {
+        return position.getHeading(angleUnit);
+    }
+
+
+    public double getVelX(DistanceUnit distanceUnit) {
+        return velocity.getX(distanceUnit);
+    }
+
+    public double getVelY(DistanceUnit distanceUnit) {
+        return velocity.getY(distanceUnit);
     }
 
     @Override
@@ -38,11 +54,11 @@ public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDev
         return true;
     }
 
-    public Pose2D pose2D;
+    public Pose2D position;
     public double headingVel;
 
     public Pose2D getPosition() {
-        return pose2D;
+        return position;
     }
 
     @Override

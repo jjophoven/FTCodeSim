@@ -1,6 +1,8 @@
 package org.codeblooded.ftcodesim.hardware.drivetrain;
 
 
+import com.pedropathing.math.Matrix;
+import com.pedropathing.math.Vector2D;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.codeblooded.ftcodesim.ascope.boundaries.FieldBoundary;
 import org.codeblooded.ftcodesim.ascope.boundaries.MotionVector;
@@ -39,25 +41,21 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
     public void update(double deltaTime) {
         boolean isBrakeMode = false;
         for (int i = 0; i < motors.length; i++) {
-            SimMotor motor = motors[i];
-            motorAngularAccelerations[i] = motor.getAcceleration();
+            SimDrivetrainMotor motor = motors[i];
             motorPowers[i] = motor.getPower();
 
-            if (motor.zeroPowerBehavior == DcMotor.ZeroPowerBehavior.BRAKE) {
+            if (motor.getZeroPowerBehavior() == DcMotor.ZeroPowerBehavior.BRAKE) {
                 isBrakeMode = true;
             }
 
-            Logger.recordOutput("Mecanum/wheel/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
-            Logger.recordOutput("Mecanum/wheel/powers/" + motor.deviceName, motor.getPower());
-            Logger.recordOutput("Mecanum/wheel/angular accelerations radians per second per second/" + motor.deviceName, motor.getAcceleration());
+            Logger.recordOutput("Mecanum/wheel/angular vels radians per second/" + i, motor.getVelocity());
+            Logger.recordOutput("Mecanum/wheel/powers/" + i, motor.getPower());
         }
 
         MotionVector robotVel = velocity.toRobotFrame(position.theta);
-        MotionVector robotAccel = forwardKinematics(motorAngularAccelerations);
         MotionVector motorEffort = powerKinematics(motorPowers);
 
         robotVel.logV("Mecanum/robot/rawVelocity inches per second");
-        robotAccel.logV("Mecanum/robot/rawAcceleration inches per second squared");
 
 //        // TODO add lag button to distrupt path or apply forces
 
@@ -67,7 +65,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         // does not account for when motors are randomly opposing each-other, does not account for slippage
 
-        double voltage = voltageSensor.getVoltage();
+        double voltage = hardwareMap.getVoltage();
 
         double direction = Math.atan2(robotVel.y, robotVel.x);
         double maxVelocity = interpolateRadius(config.foresightConfig.maxAchievableForwardVelocity.get(), config.foresightConfig.maxAchievableStrafeVelocity.get(), direction);
@@ -75,7 +73,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
         double backEMF = config.maxAcceleration / maxVelocity;
         double kA = (backEMF * (maxVelocity) + decel) / config.nominalVoltage;
 
-        robotAccel = new MotionVector(
+        MotionVector robotAccel = new MotionVector(
                 kA * voltage * motorEffort.x - (Math.signum(robotVel.x) == Math.signum(motorEffort.x) ? backEMF * Math.abs(motorEffort.x) * robotVel.x : 0),
                 kA * voltage * motorEffort.y - (Math.signum(robotVel.y) == Math.signum(motorEffort.y) ? backEMF * Math.abs(motorEffort.y) * robotVel.y : 0),
                 kA2 * voltage * motorEffort.theta - (Math.signum(robotVel.theta) == Math.signum(motorEffort.theta) ? backEMF2 * Math.abs(motorEffort.theta) * robotVel.theta : 0)
@@ -93,24 +91,24 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
             robotVel = new MotionVector(0, 0, 0);
             robotAccel = new MotionVector(0, 0, 0);
         } else {
-            if (motorEffort.x == 0 ? isBrakeMode : Math.signum(robotVel.x) != Math.signum(motorEffort.x)) {
-                robotAccel.x -= robotVel.x / (2.0 * config.foresightConfig.quadraticBrakeCoefficients.get().get(0,0) * Math.abs(robotVel.x) + config.foresightConfig.linearBrakeCoefficients.get().get(0,0));
-            } else {
-                robotAccel.x -= decel * Math.signum(robotVel.x);
-            }
+            Matrix quadratic = config.foresightConfig.quadraticBrakeCoefficients.get();
+            Matrix linear = config.foresightConfig.linearBrakeCoefficients.get();
+            Vector2D heading = config.foresightConfig.headingBrakeCoefficients.get();
 
-            if (motorEffort.y == 0 ? isBrakeMode : Math.signum(robotVel.y) != Math.signum(motorEffort.y)) {
-                robotAccel.y -= robotVel.y / (2.0 * config.foresightConfig.quadraticBrakeCoefficients.get().get(1,1) * Math.abs(robotVel.y) + config.foresightConfig.linearBrakeCoefficients.get().get(1,1));
-            } else {
-                robotAccel.y -= decel * Math.signum(robotVel.y);
-            }
+            robotAccel.x -= calculateDeceleration(
+                    robotVel.x, motorEffort.x, isBrakeMode,
+                    quadratic.get(0, 0), linear.get(0, 0), decel
+            );
 
-            if (motorEffort.theta == 0 ? isBrakeMode : Math.signum(robotVel.theta) != Math.signum(motorEffort.theta)) {
-                robotAccel.theta -= robotVel.theta / (2.0 * config.foresightConfig.headingBrakeCoefficients.get().x() * Math.abs(robotVel.theta) + config.foresightConfig.headingBrakeCoefficients.get().y());
-            }
-            else {
-                robotAccel.theta -= config.turnNaturalDeceleration * Math.signum(robotVel.theta);
-            }
+            robotAccel.y -= calculateDeceleration(
+                    robotVel.y, motorEffort.y, isBrakeMode,
+                    quadratic.get(1, 1), linear.get(1, 1), decel
+            );
+
+            robotAccel.theta -= calculateDeceleration(
+                    robotVel.theta, motorEffort.theta, isBrakeMode,
+                    heading.x(), heading.y(), config.turnNaturalDeceleration
+            );
         }
 
         robotVel.logV("Mecanum/robot/velocity inches per second");
@@ -159,7 +157,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {
-            motors[i].velocity = motorAngularVelocities[i];
+            motors[i].setVelocity(motorAngularVelocities[i]);
         }
 
         robotAccel.toFieldFrame(position.theta).logV("Mecanum/acceleration");
@@ -206,5 +204,26 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
                 (x + y - motion.theta * R) / config.wheelRadius, // BL
                 (x - y + motion.theta * R) / config.wheelRadius  // BR
         };
+    }
+
+    private double calculateDeceleration(
+            double velocity,
+            double effort,
+            boolean isBrakeMode,
+            double quadratic,
+            double linear,
+            double naturalDeceleration
+    ) {
+        if (velocity == 0) return 0;
+
+        boolean braking = effort == 0
+                ? isBrakeMode
+                : velocity * effort < 0;
+
+        if (braking) {
+            return velocity / (2.0 * quadratic * Math.abs(velocity) + linear);
+        }
+
+        return naturalDeceleration * Math.signum(velocity);
     }
 }
