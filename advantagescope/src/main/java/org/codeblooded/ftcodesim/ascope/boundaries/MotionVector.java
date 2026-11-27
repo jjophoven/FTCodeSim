@@ -115,7 +115,9 @@ public class MotionVector {
 
     public void log(String key, SourceType sourceType) {
         log(key);
-        AdvantageScopeRunner.INSTANCE.addSource("RealOutputs/" + key + " ftc coords (m)", sourceType);
+        if (AdvantageScopeRunner.INSTANCE != null) {
+            AdvantageScopeRunner.INSTANCE.addSource("RealOutputs/" + key + " ftc coords (m)", sourceType);
+        }
     }
 
 
@@ -126,7 +128,9 @@ public class MotionVector {
 
     public void log3d(String key, double z, SourceType sourceType) {
         log3d(key, z);
-        AdvantageScopeRunner.INSTANCE.addSource("RealOutputs/" + key + " ftc coords (m)", sourceType);
+        if (AdvantageScopeRunner.INSTANCE != null) {
+            AdvantageScopeRunner.INSTANCE.addSource("RealOutputs/" + key + " ftc coords (m)", sourceType);
+        }
     }
 
     public MotionVector toFtcCoords() {

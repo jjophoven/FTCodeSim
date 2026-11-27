@@ -13,40 +13,55 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.codeblooded.ftcodesim.hardware.drivetrain.SimulatedDrivetrain;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
-public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDevice {
+public class SimPinpoint extends GoBildaPinpointDriver {
     private final SimulatedDrivetrain drivetrain;
+
+    private Pose2D velocity;
+    private Pose2D position;
+    private double headingVel;
 
     public SimPinpoint(SimulatedDrivetrain drivetrain) {
         super(new FakeI2C(), false);
         this.drivetrain = drivetrain;
+        update();
     }
 
-    Pose2D velocity;
-
     @Override
-    public void update(double deltaTime) {
+    public void update() {
         position = drivetrain.getPose();
-        velocity = new Pose2D(DistanceUnit.INCH, drivetrain.getVelocity().y(), drivetrain.getVelocity().x(), AngleUnit.RADIANS, drivetrain.getVelocity().theta);
+        velocity = new Pose2D(DistanceUnit.INCH, drivetrain.getVelocity().x(), drivetrain.getVelocity().y(), AngleUnit.RADIANS, drivetrain.getVelocity().theta);
         headingVel = drivetrain.getVelocity().theta;
     }
 
     @Override
-    public void setPosition(Pose2D pos) {
-        position = pos;
-        drivetrain.setPosition(new MotionVector(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS)));
+    public void setPosition(Pose2D position) {
+        this.position = position;
+        drivetrain.setPosition(new MotionVector(position.getX(DistanceUnit.INCH), position.getY(DistanceUnit.INCH), position.getHeading(AngleUnit.RADIANS)));
     }
 
+    @Override
     public double getHeading(AngleUnit angleUnit) {
         return position.getHeading(angleUnit);
     }
 
-
+    @Override
     public double getVelX(DistanceUnit distanceUnit) {
         return velocity.getX(distanceUnit);
     }
 
+    @Override
     public double getVelY(DistanceUnit distanceUnit) {
         return velocity.getY(distanceUnit);
+    }
+
+    @Override
+    public double getPosX(DistanceUnit distanceUnit) {
+        return position.getX(distanceUnit);
+    }
+
+    @Override
+    public double getPosY(DistanceUnit distanceUnit) {
+        return position.getY(distanceUnit);
     }
 
     @Override
@@ -54,16 +69,19 @@ public class SimPinpoint extends GoBildaPinpointDriver implements SimHardwareDev
         return true;
     }
 
-    public Pose2D position;
-    public double headingVel;
-
+    @Override
     public Pose2D getPosition() {
         return position;
     }
 
     @Override
-    public double getHeadingVelocity(UnnormalizedAngleUnit unnormalizedAngleUnit) {
-        return headingVel;
+    public double getHeading(UnnormalizedAngleUnit angleUnit) {
+        return angleUnit.fromRadians(drivetrain.getPosition().theta);
+    }
+
+    @Override
+    public double getHeadingVelocity(UnnormalizedAngleUnit angleUnit) {
+        return angleUnit.fromRadians(headingVel);
     }
 }
 

@@ -37,22 +37,26 @@ public class OpModeLifecycle {
         long start = System.nanoTime();
         Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
 
-        wrap(opMode::init);
+        try {
+            wrap(opMode::init);
 
-        while (!isStarted && !isStopped) {
-            wrap(opMode::init_loop);
+            while (!isStarted && !isStopped) {
+                wrap(opMode::init_loop);
+            }
+
+            if (!isStopped) {
+                wrap(opMode::start);
+
+                while (!isStopped) {
+                    wrap(opMode::loop);
+                }
+            }
+
+            wrap(opMode::stop);
+        } finally {
+            Logger.end();
+            simHardwareMap.reset();
         }
-
-        wrap(opMode::start);
-
-        while (!isStopped) {
-            wrap(opMode::loop);
-        }
-
-        wrap(opMode::stop);
-
-        Logger.end();
-        simHardwareMap.reset();
     }
 
     public void wrap(Runnable runnable) {

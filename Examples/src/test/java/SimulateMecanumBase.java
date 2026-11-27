@@ -27,8 +27,8 @@ public class SimulateMecanumBase {
         config.wheelbase = 16;
         config.trackWidth = 16;
         config.wheelRadius = 1.889765;
-        config.staticVelocityRegion = 4;
-        config.staticFriction = 55;
+        config.staticVelocityRegion = 1;
+        config.staticFriction = .5;
 
         // TODO Fix 1 minute start up time
 

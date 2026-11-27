@@ -1,9 +1,6 @@
 package org.codeblooded.ftcodesim.simulator;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import org.codeblooded.ftcodesim.driverstation.packets.InitOpModePacket;
 import org.codeblooded.ftcodesim.driverstation.packets.OpModesPacket;
 
@@ -16,47 +13,58 @@ import java.util.jar.JarFile;
 
 
 public class OpModeRegister {
-    Set<OpMode> opmodes = new LinkedHashSet<>();
+    Set<Class<? extends OpMode>> opmodes = new LinkedHashSet<>();
 
     public OpModeRegister() {
         findAnnotatedOpModes();
     }
 
-    public InitOpModePacket toPacket(OpMode opMode) {
-        if (opMode.getClass().isAnnotationPresent(TeleOp.class)) {
-            TeleOp annotation = opMode.getClass().getAnnotation(TeleOp.class);
+    public InitOpModePacket toPacket(Class<? extends OpMode> opMode) {
+        if (opMode.isAnnotationPresent(TeleOp.class)) {
+            TeleOp annotation = opMode.getAnnotation(TeleOp.class);
             assert annotation != null;
             String name = annotation.name();
-            if (name.isEmpty()) name = opMode.getClass().getSimpleName();
+            if (name.isEmpty()) name = opMode.getSimpleName();
             return new InitOpModePacket(InitOpModePacket.Type.TELEOP, name, annotation.group());
         }
-        if (opMode.getClass().isAnnotationPresent(Autonomous.class)) {
-            Autonomous annotation = opMode.getClass().getAnnotation(Autonomous.class);
+        if (opMode.isAnnotationPresent(Autonomous.class)) {
+            Autonomous annotation = opMode.getAnnotation(Autonomous.class);
             assert annotation != null;
             String name = annotation.name();
-            if (name.isEmpty()) name = opMode.getClass().getSimpleName();
+            if (name.isEmpty()) name = opMode.getSimpleName();
             return new InitOpModePacket(InitOpModePacket.Type.AUTO, name, annotation.group());
         }
-        throw new RuntimeException("opmode is not Teleop or Autonomous annotated");
+        if (opMode.isAnnotationPresent(Utility.class)) {
+            Utility annotation = opMode.getAnnotation(Utility.class);
+            assert annotation != null;
+            String name = annotation.name();
+            if (name.isEmpty()) name = opMode.getSimpleName();
+            return new InitOpModePacket(InitOpModePacket.Type.TELEOP, name, "");
+        }
+        throw new RuntimeException("opmode is not Teleop or Autonomous or Utility annotated");
     }
 
-    public Set<OpMode> getOpModes() {
+    private Set<Class<? extends OpMode>> getOpModes() {
         return opmodes;
     }
 
     public OpMode getOpMode(InitOpModePacket packet) {
-        for (OpMode opMode : getOpModes()) {
-            if (toPacket(opMode).equals(packet)) {
-                return opMode;
+        for (Class<? extends OpMode> opModeClass : getOpModes()) {
+            if (toPacket(opModeClass).equals(packet)) {
+                try {
+                    return opModeClass.getDeclaredConstructor().newInstance();
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Could not instantiate OpMode", e);
+                }
             }
         }
-        throw new RuntimeException("could not find opmode");
+        throw new RuntimeException("Could not find OpMode");
     }
 
     public void writeOpmodes(DataOutputStream output) throws IOException {
         List<InitOpModePacket> opModes = new ArrayList<>();
 
-        for (OpMode opMode : getOpModes()) {
+        for (Class<? extends OpMode> opMode : getOpModes()) {
             opModes.add(toPacket(opMode));
         }
 
@@ -123,15 +131,17 @@ public class OpModeRegister {
     private void checkAndAddClass(String className, ClassLoader cl) {
         try {
             Class<?> c = Class.forName(className, false, cl);
+
             if (!OpMode.class.isAssignableFrom(c)) return;
             if (c.isAnnotationPresent(Disabled.class)) return;
-            if (c.isAnnotationPresent(TeleOp.class) || c.isAnnotationPresent(Autonomous.class)) {
-                opmodes.add((OpMode) c.newInstance());
+            if (java.lang.reflect.Modifier.isAbstract(c.getModifiers())) return;
+
+            if (c.isAnnotationPresent(TeleOp.class)
+                    || c.isAnnotationPresent(Autonomous.class)
+                    || c.isAnnotationPresent(Utility.class)) {
+                opmodes.add(c.asSubclass(OpMode.class));
             }
         } catch (ClassNotFoundException ignored) {
-
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Could not create OpMode" + e);
         }
     }
 }

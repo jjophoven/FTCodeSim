@@ -67,9 +67,10 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
         double voltage = hardwareMap.getVoltage();
 
-        double direction = Math.atan2(robotVel.y, robotVel.x);
+        double direction = Math.atan2(robotVel.y, robotVel.x); // or effort?
         double maxVelocity = interpolateRadius(config.foresightConfig.maxAchievableForwardVelocity.get(), config.foresightConfig.maxAchievableStrafeVelocity.get(), direction);
         double decel = interpolateAcceleration(config.foresightConfig.naturalForwardDeceleration.get(), config.foresightConfig.naturalStrafeDeceleration.get(), direction);
+        // is decel the total deceL?
         double backEMF = config.maxAcceleration / maxVelocity;
         double kA = (backEMF * (maxVelocity) + decel) / config.nominalVoltage;
 
@@ -82,10 +83,10 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
         boolean isStationary =
                 Math.abs(robotVel.x) <= config.staticVelocityRegion
                         && Math.abs(robotVel.y) <= config.staticVelocityRegion
-                        && Math.abs(robotVel.theta) <= 0.05
-                        && Math.abs(robotAccel.x) <= config.foresightConfig.naturalForwardDeceleration.get() * 1.1
-                        && Math.abs(robotAccel.y) <= config.foresightConfig.naturalStrafeDeceleration.get() * 1.1
-                        && Math.abs(robotAccel.theta) <= config.turnNaturalDeceleration * 0.1;
+                        && Math.abs(robotVel.theta) <= config.staticTurnVelocityRegion
+                        && Math.abs(robotAccel.x) <= config.foresightConfig.naturalForwardDeceleration.get()
+                        && Math.abs(robotAccel.y) <= config.foresightConfig.naturalStrafeDeceleration.get()
+                        && Math.abs(robotAccel.theta) <= config.turnNaturalDeceleration;
 
         if (isStationary) {
             robotVel = new MotionVector(0, 0, 0);

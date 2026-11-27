@@ -12,12 +12,97 @@ import java.util.Set;
 public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     private static final double NOMINAL_VOLTAGE = 12.0;
-    private static final double STOP_RPM = 0.01;
+    private static final double RPM_TO_RAD = Math.PI / 30.0;
+    private static final double BASE_RESPONSE_TIME = 0.25;
+    private static final double STATIC_LOAD_FRACTION = 0.05;
+    private static final double KINETIC_LOAD_FRACTION = 0.04;
+    // Additional empirical reverse-power damping, relative to electrical damping.
+    private static final double REGEN_BRAKING = 4.0;
 
-    // Motor response time constants (seconds)
-    public double accelerationTimeConstant = 0.25;
-    public double coastTimeConstant = 1.25;
-    public double brakeTimeConstant = 0.25;
+    // Motor constants referred to the simulated output shaft (SI units).
+    private double stallTorque;
+    private double resistance;
+    private double torqueConstant;
+    private double backEmfConstant;
+    private double viscousFriction;
+    private double baseInertia;
+
+    // Scales both mechanism inertia and Coulomb friction.
+    private double load = 1.0;
+    private double acceleration;
+    private double currentAlertAmps = Double.POSITIVE_INFINITY;
+
+    public void setLoad(double load) {
+        if (!Double.isFinite(load) || load <= 0) {
+            throw new IllegalArgumentException("Motor load must be finite and positive");
+        }
+        this.load = load;
+    }
+
+    public double getLoad() {
+        return load;
+    }
+
+    // Baseline angular acceleration (rad/s^2) per Nm at load = 1.
+    public void setTorqueToAcceleration(double coefficient) {
+        if (!Double.isFinite(coefficient) || coefficient <= 0) {
+            throw new IllegalArgumentException("Torque-to-acceleration must be finite and positive");
+        }
+        baseInertia = 1.0 / coefficient;
+    }
+
+    public double getTorqueToAcceleration() {
+        return 1.0 / (baseInertia * load);
+    }
+
+    public double getInertia() {
+        return baseInertia * load;
+    }
+
+    // Nominal 12 V specifications; torque is measured at the output shaft.
+    // Call before setTorqueToAcceleration(), as this resets the default inertia.
+    public void configureMotor(double stallTorqueNm, double stallCurrentAmps,
+                               double noLoadCurrentAmps) {
+        if (!Double.isFinite(stallTorqueNm) || stallTorqueNm <= 0
+                || !Double.isFinite(stallCurrentAmps) || stallCurrentAmps <= 0
+                || !Double.isFinite(noLoadCurrentAmps) || noLoadCurrentAmps < 0
+                || noLoadCurrentAmps >= stallCurrentAmps) {
+            throw new IllegalArgumentException("Invalid motor specifications");
+        }
+        stallTorque = stallTorqueNm;
+        resistance = NOMINAL_VOLTAGE / stallCurrentAmps;
+        torqueConstant = stallTorqueNm / stallCurrentAmps;
+        double freeSpeed = maxRPM * RPM_TO_RAD;
+        backEmfConstant = (NOMINAL_VOLTAGE - resistance * noLoadCurrentAmps) / freeSpeed;
+        viscousFriction = torqueConstant * noLoadCurrentAmps / freeSpeed;
+        baseInertia = BASE_RESPONSE_TIME * (getElectricalDamping() + viscousFriction);
+    }
+
+    private double getElectricalDamping() {
+        return torqueConstant * backEmfConstant / resistance;
+    }
+
+    private double getResponseTime() {
+        return getInertia() / (getElectricalDamping() + viscousFriction);
+    }
+
+    public double getStaticFrictionTorque() {
+        return STATIC_LOAD_FRACTION * stallTorque * load;
+    }
+
+    public double getKineticFrictionTorque() {
+        return KINETIC_LOAD_FRACTION * stallTorque * load;
+    }
+
+    // Electromagnetic shaft torque (Nm), excluding empirical extra braking.
+    public double getMotorTorque() {
+        return torqueConstant * getSignedCurrent();
+    }
+
+    // Net angular acceleration, including friction and braking (rad/s^2).
+    public double getAcceleration() {
+        return acceleration;
+    }
 
     private final double maxRPM;
     private final VoltageSensor voltageSensor;
@@ -33,6 +118,17 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
     private int targetPositionTolerance = 5;
 
     private Direction direction = Direction.FORWARD;
+    // True for standard FTC motor encoder semantics. False for an
+    // independent mechanism encoder whose polarity is fixed to the shaft.
+    private boolean encoderFollowsDirection = true;
+
+    public void setEncoderFollowsDirection(boolean followsDirection) {
+        this.encoderFollowsDirection = followsDirection;
+    }
+
+    private double encoderDirectionSign() {
+        return encoderFollowsDirection ? directionSign() : 1.0;
+    }
     private RunMode runMode = RunMode.RUN_WITHOUT_ENCODER;
     private ZeroPowerBehavior zeroPowerBehavior = ZeroPowerBehavior.FLOAT;
 
@@ -49,6 +145,9 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
             double ticksPerRev,
             SimVoltageSensor voltageSensor
     ) {
+        if (!Double.isFinite(maxRPM) || maxRPM <= 0) {
+            throw new IllegalArgumentException("Max RPM must be finite and positive");
+        }
         this.maxRPM = maxRPM;
         this.voltageSensor = voltageSensor;
 
@@ -56,6 +155,9 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
         motorType.setMaxRPM(maxRPM);
         motorType.setTicksPerRev(ticksPerRev);
+
+        // Generic defaults. Configure actual motor specifications when known.
+        configureMotor(1.0, 10.0, 0.2);
     }
 
     // ==================== PHYSICS ====================
@@ -64,8 +166,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
     public void update(double deltaTime) {
         if (deltaTime <= 0 || !Double.isFinite(deltaTime)) return;
 
-        double voltage = Math.max(0, voltageSensor.getVoltage());
-        double availableRPM = maxRPM * voltage / NOMINAL_VOLTAGE;
+        double availableRPM = getAvailableRPM();
 
         // Substep to handle direction changes and position control.
         while (deltaTime > 0) {
@@ -75,58 +176,111 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
         }
     }
 
+    private boolean isFloating(double appliedPower) {
+        return !enabled || (appliedPower == 0
+                && zeroPowerBehavior != ZeroPowerBehavior.BRAKE
+                && runMode != RunMode.RUN_TO_POSITION);
+    }
+
+    private double getBatteryVoltage() {
+        double voltage = voltageSensor.getVoltage();
+        return Double.isFinite(voltage) ? Math.max(0, voltage) : 0;
+    }
+
+    // Signed equivalent armature current (A), neglecting inductance and PWM ripple.
+    private double getSignedCurrent() {
+        double appliedPower = getAppliedPower();
+        if (isFloating(appliedPower)) return 0;
+        return (appliedPower * getBatteryVoltage()
+                - backEmfConstant * rpm * RPM_TO_RAD) / resistance;
+    }
+
     private void updatePhysics(double dt, double availableRPM) {
         double appliedPower = getAppliedPower(availableRPM);
-        double targetRPM = appliedPower * availableRPM;
+        boolean floating = isFloating(appliedPower);
+        double voltage = appliedPower * getBatteryVoltage();
+        double driveTorque = floating ? 0 : torqueConstant * voltage / resistance;
+        double damping = viscousFriction + (floating ? 0 : getElectricalDamping());
 
-        double tau;
-
-        if (!enabled) {
-            tau = coastTimeConstant;
-
-        } else if (appliedPower == 0) {
-            tau = zeroPowerBehavior == ZeroPowerBehavior.BRAKE
-                    || runMode == RunMode.RUN_TO_POSITION
-                    ? brakeTimeConstant
-                    : coastTimeConstant;
-
-        } else if (appliedPower * rpm < 0) {
-            // Active braking, regardless of power magnitude.
-            tau = brakeTimeConstant;
-
-        } else if (Math.abs(targetRPM) < Math.abs(rpm)) {
-            // Reduced power in the same direction.
-            // Near-zero power behaves similarly to coasting.
-            tau = coastTimeConstant
-                    + (accelerationTimeConstant - coastTimeConstant)
-                    * Math.abs(appliedPower);
-
-        } else {
-            tau = accelerationTimeConstant;
-        }
-
-        // Analytical integration of:
-        // dRPM/dt = (targetRPM - rpm) / tau
-
-        double previousRPM = rpm;
-        double decay = Math.exp(-dt / tau);
-
-        rpm = targetRPM + (previousRPM - targetRPM) * decay;
-
-        // Integrate RPM to obtain shaft revolutions.
-        revolutions += (
-                targetRPM * dt
-                        + (previousRPM - targetRPM) * tau * (1 - decay)
-        ) / 60.0;
-
-        // Prevent an infinitely small coasting velocity.
-        if (targetRPM == 0 && Math.abs(rpm) < STOP_RPM) {
-            rpm = 0;
-        }
+        // Split at zero velocity: friction and extra braking can change there.
+        integrateMotor(dt, appliedPower, driveTorque, damping);
 
         if (runMode == RunMode.STOP_AND_RESET_ENCODER) {
             encoderOffset = revolutions;
         }
+    }
+
+    private void integrateMotor(double dt, double appliedPower,
+                                double driveTorque, double baseDamping) {
+        if (dt <= 0) return;
+        double omega = rpm * RPM_TO_RAD;
+        double motionSign = Math.signum(omega);
+
+        if (motionSign == 0) {
+            // Static friction balances the applied torque until breakaway.
+            if (Math.abs(driveTorque) <= getStaticFrictionTorque()) {
+                rpm = 0;
+                acceleration = 0;
+                return;
+            }
+            motionSign = Math.signum(driveTorque);
+        }
+
+        double damping = baseDamping;
+        if (appliedPower * motionSign < 0) {
+            // Additional empirical braking torque = -K * angular velocity.
+            damping += REGEN_BRAKING * getElectricalDamping();
+        }
+
+        double constantTorque = driveTorque - motionSign * getKineticFrictionTorque();
+        double inertia = getInertia();
+
+        // If the solution crosses zero, integrate only to that instant,
+        // then reevaluate static friction and reverse-power braking.
+        if (omega * constantTorque < 0) {
+            double timeToZero = damping == 0
+                    ? -omega * inertia / constantTorque
+                    : inertia / damping * Math.log1p(-damping * omega / constantTorque);
+            if (timeToZero <= dt) {
+                integrateSegment(timeToZero, omega, constantTorque, damping, inertia);
+                rpm = 0;
+                acceleration = 0;
+                integrateMotor(dt - timeToZero, appliedPower, driveTorque, baseDamping);
+                return;
+            }
+        }
+
+        integrateSegment(dt, omega, constantTorque, damping, inertia);
+    }
+
+    private void integrateSegment(double dt, double omega, double constantTorque,
+                                  double damping, double inertia) {
+        // Exact solution of J * d(omega)/dt = constantTorque - damping * omega.
+        double nextOmega;
+        double angle;
+        if (damping == 0) {
+            double alpha = constantTorque / inertia;
+            nextOmega = omega + alpha * dt;
+            angle = omega * dt + 0.5 * alpha * dt * dt;
+        } else {
+            double timeConstant = inertia / damping;
+            double equilibrium = constantTorque / damping;
+            double response = -Math.expm1(-dt / timeConstant);
+            nextOmega = omega + (equilibrium - omega) * response;
+            angle = omega * dt + (equilibrium - omega) * (dt - timeConstant * response);
+        }
+        rpm = nextOmega / RPM_TO_RAD;
+        revolutions += angle / (2 * Math.PI);
+        acceleration = (constantTorque - damping * nextOmega) / inertia;
+    }
+
+    private double getAvailableRPM() {
+        return maxRPM * getBatteryVoltage() / NOMINAL_VOLTAGE;
+    }
+
+    // Physical power, including motor direction and position control.
+    public double getAppliedPower() {
+        return getAppliedPower(getAvailableRPM());
     }
 
     private double getAppliedPower(double availableRPM) {
@@ -147,13 +301,13 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
             // Approach the target gradually to reduce overshoot.
             double desiredRPM =
-                    errorRevolutions * 60 / (4 * brakeTimeConstant);
+                    errorRevolutions * 60 / (4 * getResponseTime());
 
             return clamp(
                     desiredRPM / availableRPM,
                     -Math.abs(power),
                     Math.abs(power)
-            ) * directionSign();
+            ) * encoderDirectionSign();
         }
 
         return power * directionSign();
@@ -168,7 +322,13 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
         return revolutions;
     }
 
+    // Physical shaft RPM, suitable for simulator physics.
     public double getRPM() {
+        return rpm;
+    }
+
+    // Direction-adjusted RPM, suitable for FTC SDK feedback.
+    public double getLogicalRPM() {
         return rpm * directionSign();
     }
 
@@ -188,7 +348,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     @Override
     public void setPower(double power) {
-        this.power = clamp(power, -1, 1);
+        this.power = Double.isFinite(power) ? clamp(power, -1, 1) : 0;
     }
 
     @Override
@@ -236,7 +396,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
     private double getEncoderPosition() {
         return (revolutions - encoderOffset)
                 * motorType.getTicksPerRev()
-                * directionSign();
+                * encoderDirectionSign();
     }
 
     @Override
@@ -246,14 +406,15 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     @Override
     public double getVelocity() {
-        return getRPM() / 60.0 * motorType.getTicksPerRev();
+        return rpm * encoderDirectionSign() / 60.0 * motorType.getTicksPerRev();
     }
 
     @Override
     public double getVelocity(AngleUnit unit) {
+        double encoderRPM = rpm * encoderDirectionSign();
         return unit == AngleUnit.DEGREES
-                ? getRPM() * 6
-                : getRPM() * Math.PI / 30;
+                ? encoderRPM * 6
+                : encoderRPM * Math.PI / 30;
     }
 
     @Override
@@ -346,6 +507,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
     public void reset() {
         power = 0;
         rpm = 0;
+        acceleration = 0;
         revolutions = 0;
         encoderOffset = 0;
         targetPosition = 0;
@@ -456,24 +618,25 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     @Override
     public double getCurrent(CurrentUnit unit) {
-        unsupported("getCurrent()");
-        return 0;
+        double amps = Math.abs(getSignedCurrent());
+        return unit == CurrentUnit.AMPS ? amps : amps * 1000;
     }
 
     @Override
     public double getCurrentAlert(CurrentUnit unit) {
-        unsupported("getCurrentAlert()");
-        return 0;
+        return unit == CurrentUnit.AMPS ? currentAlertAmps : currentAlertAmps * 1000;
     }
 
     @Override
     public void setCurrentAlert(double current, CurrentUnit unit) {
-        unsupported("setCurrentAlert()");
+        if (Double.isNaN(current) || current < 0) {
+            throw new IllegalArgumentException("Invalid current alert");
+        }
+        currentAlertAmps = unit == CurrentUnit.AMPS ? current : current / 1000;
     }
 
     @Override
     public boolean isOverCurrent() {
-        unsupported("isOverCurrent()");
-        return false;
+        return Math.abs(getSignedCurrent()) > currentAlertAmps;
     }
 }

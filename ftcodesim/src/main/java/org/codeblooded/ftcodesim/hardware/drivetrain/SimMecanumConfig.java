@@ -17,5 +17,7 @@ public class SimMecanumConfig extends SimDrivetrainConfig {
 
     public double turnNaturalDeceleration;
 
+    public double staticTurnVelocityRegion = 0.01;
+
     public SeasonField field;
 }

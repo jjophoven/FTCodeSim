@@ -14,6 +14,7 @@ import org.codeblooded.ftcodesim.hardware.devices.SimTelemetry;
 import org.codeblooded.ftcodesim.input.Keybinds;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -79,15 +80,19 @@ public class FTCodeSim {
     }
 
     public void run() throws InterruptedException {
-        while (windowIsRunning()) {
-            if (opModeLifecycle == null) {
-                Thread.sleep(config.loopTimeMs);
-                continue;
+        try {
+            while (windowIsRunning()) {
+                if (opModeLifecycle == null) {
+                    Thread.sleep(config.loopTimeMs);
+                    continue;
+                }
+
+                opModeLifecycle.runOpMode();
+                opModeLifecycle = null;
             }
-            opModeLifecycle.runOpMode();
-            opModeLifecycle = null;
+        } finally {
+            close();
         }
-        close();
     }
 
     public boolean windowIsRunning() {
@@ -98,7 +103,9 @@ public class FTCodeSim {
     public void startServer() throws IOException {
         log("Connecting to Fake Driver Station on port " + PORT);
 
-        listener = new ServerSocket(PORT);
+        listener = new ServerSocket();
+        listener.setReuseAddress(true);
+        listener.bind(new InetSocketAddress(PORT));
 
         driverStationWindow = startDriverStationProcess();
 
@@ -126,7 +133,7 @@ public class FTCodeSim {
         }
     }
 
-    private final Set<Integer> heldKeys = new HashSet<>();
+    private Set<Integer> heldKeys = new HashSet<>();
 
     public void readPackets() {
         try {
@@ -140,6 +147,10 @@ public class FTCodeSim {
 
                         if (keyPacket.down) heldKeys.add(keyPacket.keyCode);
                         else heldKeys.remove(keyPacket.keyCode);
+
+                        if (opModeLifecycle == null) {
+                            break;
+                        }
 
                         // Note: edge detection does not work over multiple keys
                         opModeLifecycle.latestGamepad1Data = gamepad1Keybinds.getByteArray(heldKeys);
@@ -163,11 +174,14 @@ public class FTCodeSim {
                         OpModeCommandPacket command = OpModeCommandPacket.read(in);
                         System.out.println("RECEIVED COMMAND: " + command);
 
-                        if (command.equals(OpModeCommandPacket.START)) {
-                            opModeLifecycle.isStarted = true;
-                        }
-                        if (command.equals(OpModeCommandPacket.STOP)) {
-                            opModeLifecycle.isStopped = true;
+                        if (opModeLifecycle != null) {
+                            if (command.equals(OpModeCommandPacket.START)) {
+                                opModeLifecycle.isStarted = true;
+                            }
+                            if (command.equals(OpModeCommandPacket.STOP)) {
+                                opModeLifecycle.isStopped = true;
+                                heldKeys.clear();
+                            }
                         }
                         break;
                     case Packet.INIT_OPMODE:
@@ -216,6 +230,10 @@ public class FTCodeSim {
 
         if (driverStationWindow != null) {
             driverStationWindow.destroy();
+        }
+
+        if (opModeLifecycle != null) {
+            opModeLifecycle.isStopped = true;
         }
 
         state = null;

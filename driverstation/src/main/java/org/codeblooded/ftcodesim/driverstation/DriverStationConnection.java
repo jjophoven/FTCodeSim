@@ -85,7 +85,7 @@ public class DriverStationConnection {
         }
     }
 
-    public void send(Packet packet) {
+    public synchronized void send(Packet packet) {
         if (output == null) return;
 
         try {
